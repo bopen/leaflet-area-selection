@@ -12,3 +12,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.map-container {
+  margin: 5px 10px;
+  min-height: 768px;
+  box-shadow: 5px 5px 10px -1px #303030;
+  border-radius: 5px;
+}
