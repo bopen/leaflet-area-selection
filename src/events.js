@@ -1,5 +1,6 @@
-import { DivIcon, Marker, Point, Polygon } from 'leaflet';
+import { DivIcon, Marker, Point, Polygon, Polyline } from 'leaflet';
 import { cls } from './utils';
+import { addEndClickArea } from './drawing-pane';
 
 export function onAddPoint(control, map) {
   return (event) => {
@@ -12,6 +13,10 @@ export function onAddPoint(control, map) {
     const bbox = container.getBoundingClientRect();
     const x = clientX - bbox.left;
     const y = clientY - bbox.top;
+    if (control.markers.length === 0) {
+      // this is the first point: let's add a sensible click area on the pane too
+      addEndClickArea(control, map, [x, y]);
+    }
     const point = new Point(x, y);
     const icon = new DivIcon({
       className: cls('area-select-marker'),
@@ -33,30 +38,66 @@ export function onAddMarker(control, map) {
   return (edge) => {
     const { markers } = control;
     markers.push(edge);
-    if (markers.length < 3) {
+    const enoughPoints = markers.length >= 3;
+    if (!enoughPoints) {
       markers.forEach(({ marker }) => {
         const icon = marker.getIcon();
         icon.options.className = cls('area-select-marker', 'invalid');
         marker.setIcon(icon);
       });
-      return;
     } else if (markers.length === 3) {
       // Restore colors
-      markers.forEach(({ marker }) => {
+      markers.forEach(({ marker }, index) => {
         const icon = marker.getIcon();
-        icon.options.className = cls('area-select-marker');
+        icon.options.className = cls(
+          'area-select-marker',
+          index === 0 ? 'start-marker' : null
+        );
         marker.setIcon(icon);
       });
     }
     // update the polygon
     const polygon = new Polygon(
-      markers.map(({ point }) => map.containerPointToLatLng(point)),
-      { color: 'rgb(45, 123, 200)' }
+      markers.map(({ marker }) => {
+        return marker.getLatLng();
+        // return map.containerPointToLatLng(point);
+      }),
+      {
+        color: enoughPoints ? 'rgb(45, 123, 200)' : 'rgba(220, 53, 69, 0.7)',
+        weight: 2,
+        ...(!enoughPoints && { dashArray: '5, 10' }),
+      }
     );
     if (control.polygon) {
       map.removeLayer(control.polygon);
     }
     control.polygon = polygon;
     map.addLayer(control.polygon);
+    // close line
+    if (control.closeLine) {
+      map.removeLayer(control.closeLine);
+    }
+    if (enoughPoints) {
+      control.closeLine = new Polyline(
+        [
+          map.containerPointToLatLng(markers[0].point),
+          map.containerPointToLatLng(markers[markers.length - 1].point),
+        ],
+        {
+          weight: 3,
+          color: '#c0c0c0',
+        }
+      );
+      map.addLayer(control.closeLine);
+    }
+  };
+}
+
+export function onPolygonCreationEnd(control, map) {
+  return (event) => {
+    map.off('as:point-add');
+    map.off('as:marker-add');
+    map.removeLayer(control.closeLine);
+    control.closeLine = null;
   };
 }

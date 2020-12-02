@@ -1,10 +1,17 @@
 {
   "name": "@bopen/leaflet-area-selection",
   "version": "0.1.0",
-  "description": "Create a polygonal area on a Leaflet map",
-  "author": "bopen",
+  "description": "Create and manipulate a polygonal area on a Leaflet map",
+  "author": "B-Open",
   "license": "MIT",
-  "repository": "bopen/@bopen/leaflet-area-selection",
+  "repository": "https://github.com/bopen/leaflet-area-selection.git",
+  "homepage": "https://bopen.github.io/leaflet-area-selection/",
+  "bugs": "https://github.com/bopen/leaflet-area-selection/issues",
+  "keywords": [
+    "leaflet",
+    "geolocation",
+    "maps"
+  ],
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.js",

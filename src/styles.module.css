@@ -16,6 +16,16 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+.endSelectionArea {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: black;
+  background-color: cadetblue;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
 .areaSelectMarker {
   width: 16px;
   height: 16px;
@@ -23,8 +33,11 @@
   background-color: #fff;
 }
 
+.areaSelectMarker:global.start-marker {
+  background-color: #28a745;
+}
+
 .areaSelectMarker:global.invalid {
-  border: 1px solid #0e4e73;
   border-color: rgb(220, 53, 69);
   background-color: rgba(220, 53, 69, 0.7);
 }
