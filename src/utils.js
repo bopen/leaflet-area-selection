@@ -4,9 +4,7 @@ import styles from './styles.module.css';
 export function toCamelCase(name) {
   return name
     .split('-')
-    .map((s, index) =>
-      index === 0 ? s : `${s[0].toUpperCase()}${s.substring(1)}`
-    )
+    .map((s, index) => (index === 0 ? s : `${s[0].toUpperCase()}${s.substring(1)}`))
     .join('');
 }
 

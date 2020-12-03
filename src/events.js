@@ -20,6 +20,7 @@ export function onAddPoint(control, map) {
     const point = new Point(x, y);
     const icon = new DivIcon({
       className: cls('area-select-marker'),
+      iconSize: [16, 16],
     });
     const marker = new Marker(map.containerPointToLatLng(point), {
       icon,
@@ -49,10 +50,7 @@ export function onAddMarker(control, map) {
       // Restore colors
       markers.forEach(({ marker }, index) => {
         const icon = marker.getIcon();
-        icon.options.className = cls(
-          'area-select-marker',
-          index === 0 ? 'start-marker' : null
-        );
+        icon.options.className = cls('area-select-marker', index === 0 ? 'start-marker' : null);
         marker.setIcon(icon);
       });
     }
@@ -98,6 +96,15 @@ export function onPolygonCreationEnd(control, map) {
     map.off('as:point-add');
     map.off('as:marker-add');
     map.removeLayer(control.closeLine);
+    // Remove style for the final marker icon
+    control.markers[0].marker.getElement().classList.remove('start-marker');
     control.closeLine = null;
+    control.setActive(false);
   };
+}
+
+export function onActivate(event) {
+  event.preventDefault();
+  event.target.blur();
+  this.setActive(!this.options.active);
 }

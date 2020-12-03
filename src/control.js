@@ -1,10 +1,14 @@
 import { DomUtil, Control, Util, Point } from 'leaflet';
 import { createPane, PANE_NAME } from './drawing-pane';
 import { cls, setPosition } from './utils';
-import { onAddPoint, onAddMarker, onPolygonCreationEnd } from './events';
+import { onActivate, onAddMarker, onAddPoint, onPolygonCreationEnd } from './events';
+import iconImage from 'images/area-icon.svg';
 
 export const DrawAreaSelection = Control.extend({
-  options: {},
+  options: {
+    // activate automatically area selection
+    active: false,
+  },
 
   initialize: function (options = {}) {
     Util.setOptions(this, options);
@@ -13,6 +17,38 @@ export const DrawAreaSelection = Control.extend({
     this.polygon = null;
     this.closeLine = null;
     this._originPoint = null;
+  },
+
+  onAdd: function (map) {
+    this._container = DomUtil.create('div', cls('leaflet-area-selector-control'));
+    this.activateButton = DomUtil.create('button', '', this._container);
+    this.activateButton.addEventListener('click', onActivate.bind(this));
+    this.activateButton.addEventListener('dblclick', (event) => {
+      event.stopPropagation();
+    });
+    const icon = DomUtil.create('img', '', this.activateButton);
+    icon.setAttribute('src', iconImage);
+    this._map = map;
+    createPane(map, this.options);
+    map.on('movestart', this.mapMoveStart.bind(this));
+    map.on('moveend', this.mapDragEnd.bind(this));
+    map.on('as:point-add', onAddPoint(this, map));
+    map.on('as:marker-add', onAddMarker(this, map));
+    map.on('as:creation-end', onPolygonCreationEnd(this, map));
+    return this._container;
+  },
+
+  get active() {
+    return this.options.active;
+  },
+
+  setActive(value) {
+    this.options.active = Boolean(value);
+    const pane = this._map.getPane(PANE_NAME);
+    const container = pane.parentNode;
+    this.options.active
+      ? container.classList.remove('inactive')
+      : container.classList.add('inactive');
   },
 
   mapMoveStart: function () {
@@ -34,11 +70,7 @@ export const DrawAreaSelection = Control.extend({
       const firstMarker = this.markers[0].marker;
       const bbox = touchMarker.getBoundingClientRect();
       const point = map.latLngToContainerPoint(firstMarker.getLatLng());
-      setPosition(
-        touchMarker,
-        point,
-        new Point(-bbox.width / 2, -bbox.height / 2)
-      );
+      setPosition(touchMarker, point, new Point(-bbox.width / 2, -bbox.height / 2));
     }
     this.translatePolygon();
   },
@@ -60,22 +92,7 @@ export const DrawAreaSelection = Control.extend({
       : new Point(0, 0);
   },
 
-  onAdd: function (map) {
-    this._container = DomUtil.create(
-      'div',
-      cls('leaflet-area-selector-control')
-    );
-    this._map = map;
-    createPane(map);
-    map.on('movestart', this.mapMoveStart.bind(this));
-    map.on('moveend', this.mapDragEnd.bind(this));
-    map.on('as:point-add', onAddPoint(this, map));
-    map.on('as:marker-add', onAddMarker(this, map));
-    map.on('as:creation-end', onPolygonCreationEnd(this, map));
-    return this._container;
-  },
-
-  overClosePoint: function (event) {
+  hoverClosePoint: function (event) {
     if (this.markers.length > 2 && this.closeLine) {
       this.closeLine.removeFrom(this._map);
     }

@@ -1,7 +1,36 @@
 .leafletAreaSelectorControl {
-  width: 80px;
-  height: 80px;
-  background-color: blueviolet;
+  width: 40px;
+  height: 40px;
+  background-color: white;
+}
+
+.leafletAreaSelectorControl button {
+  appearance: none;
+  font-family: inherit;
+  background-color: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.leafletAreaSelectorControl button:hover {
+  background-color: #f4f4f4;
+  transition: background-color 0.2s ease-out;
+}
+
+.leafletAreaSelectorControl button:focus {
+  background-color: #f4f4f4;
+}
+
+.leafletAreaSelectorControl button img {
+  max-width: 100%;
+}
+
+.leafletMapOverlayPane:global.inactive {
+  pointer-events: none;
 }
 
 .leafletMapOverlayPane {
@@ -16,12 +45,14 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+.leafletMapOverlayPane:global.inactive :global .leaflet-area-draw-selection-pane {
+  background-color: transparent;
+}
+
 .endSelectionArea {
   position: absolute;
   width: 20px;
   height: 20px;
-  border: black;
-  background-color: cadetblue;
   transform: translate(-50%, -50%);
   cursor: pointer;
 }
@@ -31,6 +62,22 @@
   height: 16px;
   border: 1px solid #0e4e73;
   background-color: #fff;
+  /* cursor: grab; */
+}
+.areaSelectMarker:hover {
+  background-color: #0e4e73;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .areaSelectMarker:after {
+    content: '';
+    width: 100%;
+    height: 100%;
+    padding: 15px;
+    display: block;
+    margin-left: -15px;
+    margin-top: -15px;
+  }
 }
 
 .areaSelectMarker:global.start-marker {
