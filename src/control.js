@@ -7,22 +7,31 @@ import {
   onAddPoint,
   onPolygonCreationEnd,
   onUpdatePolygon,
+  onUpdateGhostPoints,
 } from './events';
 import iconImage from 'images/area-icon.svg';
 
 export const DrawAreaSelection = Control.extend({
   options: {
-    // activate automatically area selection
+    // activate automatically area selection on plugin load
     active: false,
+    // callback called when draw phase is complete and at every polygon adjustement
+    onPolygonReady: (polygon) => {},
   },
 
   initialize: function (options = {}) {
     Util.setOptions(this, options);
+    // lifecycle phases: one of inactive, draw, adjust
+    this.phase = options.active ? 'draw' : 'inactive';
     this.map_moving = false;
+    // edge markers used for drawing, next dragging the polygon
     this.markers = [];
+    // fake markers used for adding rings to the polygon
+    this.ghostMarkers = [];
+    // The actual polygon draw
     this.polygon = null;
+    // on drawing phase: a line from the last drawn point to the first ones
     this.closeLine = null;
-    this._originPoint = null;
   },
 
   onAdd: function (map) {
@@ -32,25 +41,32 @@ export const DrawAreaSelection = Control.extend({
     this.activateButton.addEventListener('dblclick', (event) => {
       event.stopPropagation();
     });
+    this.options.active
+      ? this.activateButton.classList.add('active')
+      : this.activateButton.classList.remove('active');
     const icon = DomUtil.create('img', '', this.activateButton);
     icon.setAttribute('src', iconImage);
     this._map = map;
     createPane(map, this.options);
     map.on('movestart', this.mapMoveStart.bind(this));
-    map.on('moveend', this.mapDragEnd.bind(this));
+    map.on('moveend', this.mapMoveEnd.bind(this));
     map.on('as:point-add', onAddPoint(this, map));
     map.on('as:marker-add', onAddMarker(this, map));
     map.on('as:creation-end', onPolygonCreationEnd(this, map));
     map.on('as:update-polygon', onUpdatePolygon(this, map));
+    map.on('as:update-ghost-points', onUpdateGhostPoints(this, map));
     return this._container;
   },
 
-  get active() {
-    return this.options.active;
-  },
-
-  setActive(value) {
-    this.options.active = Boolean(value);
+  setPhase(phase, forceClear = false) {
+    this.phase = phase;
+    this.options.active = phase === 'draw';
+    // If we didn't finished to fill a polygon, let's clear all
+    if (forceClear || this.phase === 'draw') {
+      this.clearGhostMarkers();
+      this.clearMarkers();
+      this.clearPolygon();
+    }
     const pane = this._map.getPane(PANE_NAME);
     const container = pane.parentNode;
     this.options.active
@@ -60,12 +76,9 @@ export const DrawAreaSelection = Control.extend({
 
   mapMoveStart: function () {
     this.map_moving = true;
-    if (this.markers.length > 0) {
-      this._originPoint = this.markers[0].point;
-    }
   },
 
-  mapDragEnd: function (event) {
+  mapMoveEnd: function (event) {
     global.requestAnimationFrame(() => {
       this.map_moving = false;
     });
@@ -86,17 +99,13 @@ export const DrawAreaSelection = Control.extend({
     if (this.markers.length === 0) {
       return;
     }
+    const map = this._map;
     this.markers.forEach((data) => {
-      data.point = data.point.add(this.getOriginOffset());
+      data.point = map.latLngToContainerPoint(data.marker.getLatLng());
     });
-  },
-
-  getOriginOffset: function () {
-    return this.markers.length > 0 && this._originPoint
-      ? this._map
-          .latLngToContainerPoint(this.markers[0].marker.getLatLng())
-          .subtract(this._originPoint)
-      : new Point(0, 0);
+    this.ghostMarkers.forEach((data) => {
+      data.point = map.latLngToContainerPoint(data.marker.getLatLng());
+    });
   },
 
   hoverClosePoint: function (event) {
@@ -109,6 +118,27 @@ export const DrawAreaSelection = Control.extend({
     if (this.closeLine) {
       this.closeLine.addTo(this._map);
     }
+  },
+
+  clearMarkers: function () {
+    this.markers.forEach(({ marker }) => {
+      marker.removeFrom(this._map);
+    });
+    this.markers = [];
+  },
+
+  clearGhostMarkers: function () {
+    this.ghostMarkers.forEach(({ marker }) => {
+      marker.removeFrom(this._map);
+    });
+    this.ghostMarkers = [];
+  },
+
+  clearPolygon: function () {
+    this.polygon && this.polygon.removeFrom(this._map);
+    this.polygon = null;
+    this.closeLine && this.closeLine.removeFrom(this._map);
+    this.closeLine = null;
   },
 });
 

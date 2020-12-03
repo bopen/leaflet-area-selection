@@ -6,18 +6,13 @@ export const PANE_NAME = 'area-draw-selection';
 function drawingPaneContainer(options) {
   const drawPane = DomUtil.create(
     'div',
-    cls(
-      'leaflet-map-overlay-pane',
-      `leaflet-pane${options.active ? '' : ' inactive'}`
-    )
+    cls('leaflet-map-overlay-pane', `leaflet-pane${options.active ? '' : ' inactive'}`)
   );
   return drawPane;
 }
 
 export function createPane(map, options) {
-  const standardPanesContainer = map
-    .getContainer()
-    .querySelector('.leaflet-map-pane');
+  const standardPanesContainer = map.getContainer().querySelector('.leaflet-map-pane');
   const overlayPanesContainer = drawingPaneContainer(options);
   insertAfter(overlayPanesContainer, standardPanesContainer);
   const pane = map.createPane(PANE_NAME, overlayPanesContainer);
@@ -45,9 +40,5 @@ export function addEndClickArea(control, map, [x, y]) {
   );
   marker.addEventListener('mouseenter', control.hoverClosePoint.bind(control));
   marker.addEventListener('mouseleave', control.outClosePoint.bind(control));
-  setPosition(
-    marker,
-    new Point(x, y),
-    new Point(-bbox.width / 2, -bbox.height / 2)
-  );
+  setPosition(marker, new Point(x, y), new Point(-bbox.width / 2, -bbox.height / 2));
 }

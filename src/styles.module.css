@@ -24,9 +24,13 @@
 .leafletAreaSelectorControl button:focus {
   background-color: #f4f4f4;
 }
+.leafletAreaSelectorControl button:global.active {
+  background-color: #17a2b8;
+}
 
 .leafletAreaSelectorControl button img {
   width: 100%;
+  pointer-events: none;
 }
 
 .leafletMapOverlayPane:global.inactive {
@@ -69,6 +73,14 @@
 }
 .areaSelectMarker:global.active {
   background-color: #0e4e73;
+}
+
+.areaSelectGhostMarker {
+  composes: areaSelectMarker;
+  width: 14x;
+  height: 14px;
+  background-color: #c0c0c0;
+  opacity: 0.5;
 }
 
 @media (hover: none) and (pointer: coarse) {

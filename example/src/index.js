@@ -24,6 +24,15 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 L.marker(center).addTo(map).bindPopup('B-Open');
 
-const areaSelection = new DrawAreaSelection();
+const areaSelection = new DrawAreaSelection({
+  active: true,
+  onPolygonReady: (polygon) => {
+    document.getElementById('polygon').innerText = JSON.stringify(
+      polygon.toGeoJSON(2),
+      undefined,
+      2
+    );
+  },
+});
 
 map.addControl(areaSelection);
