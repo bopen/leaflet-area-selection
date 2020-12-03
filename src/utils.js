@@ -24,7 +24,7 @@ export function insertAfter(newNode, referenceNode) {
 }
 
 /**
- * Like original DomUtil.setPosition, but take an optional offset
+ * Like original DomUtil.setPosition, but takes an optional offset
  * @param {DOMElement} el
  * @param {Point} point
  */

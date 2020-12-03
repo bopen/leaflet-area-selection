@@ -1,7 +1,13 @@
 import { DomUtil, Control, Util, Point } from 'leaflet';
 import { createPane, PANE_NAME } from './drawing-pane';
 import { cls, setPosition } from './utils';
-import { onActivate, onAddMarker, onAddPoint, onPolygonCreationEnd } from './events';
+import {
+  onActivate,
+  onAddMarker,
+  onAddPoint,
+  onPolygonCreationEnd,
+  onUpdatePolygon,
+} from './events';
 import iconImage from 'images/area-icon.svg';
 
 export const DrawAreaSelection = Control.extend({
@@ -35,6 +41,7 @@ export const DrawAreaSelection = Control.extend({
     map.on('as:point-add', onAddPoint(this, map));
     map.on('as:marker-add', onAddMarker(this, map));
     map.on('as:creation-end', onPolygonCreationEnd(this, map));
+    map.on('as:update-polygon', onUpdatePolygon(this, map));
     return this._container;
   },
 

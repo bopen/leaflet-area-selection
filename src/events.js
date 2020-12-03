@@ -24,6 +24,14 @@ export function onAddPoint(control, map) {
     });
     const marker = new Marker(map.containerPointToLatLng(point), {
       icon,
+      draggable: true,
+    });
+    marker.on('drag', onMarkerDrag(control, map, control.markers.length));
+    marker.on('dragstart', (event) => {
+      event.target.getElement().classList.add('active');
+    });
+    marker.on('dragend', (event) => {
+      event.target.getElement().classList.remove('active');
     });
     const newEdge = {
       point,
@@ -32,6 +40,34 @@ export function onAddPoint(control, map) {
     };
     map.fire('as:marker-add', newEdge);
     marker.addTo(map);
+  };
+}
+
+/**
+ * Refresh the polygon on the map
+ * @param {Control} control
+ * @param {Map} map
+ */
+export function onUpdatePolygon(control, map) {
+  return (event) => {
+    const { markers } = control;
+    const enoughPoints = markers.length >= 3;
+    const polygon = new Polygon(
+      markers.map(({ marker }) => {
+        return marker.getLatLng();
+        // return map.containerPointToLatLng(point);
+      }),
+      {
+        color: enoughPoints ? 'rgb(45, 123, 200)' : 'rgba(220, 53, 69, 0.7)',
+        weight: 2,
+        ...(!enoughPoints && { dashArray: '5, 10' }),
+      }
+    );
+    if (control.polygon) {
+      map.removeLayer(control.polygon);
+    }
+    control.polygon = polygon;
+    map.addLayer(control.polygon);
   };
 }
 
@@ -54,23 +90,8 @@ export function onAddMarker(control, map) {
         marker.setIcon(icon);
       });
     }
-    // update the polygon
-    const polygon = new Polygon(
-      markers.map(({ marker }) => {
-        return marker.getLatLng();
-        // return map.containerPointToLatLng(point);
-      }),
-      {
-        color: enoughPoints ? 'rgb(45, 123, 200)' : 'rgba(220, 53, 69, 0.7)',
-        weight: 2,
-        ...(!enoughPoints && { dashArray: '5, 10' }),
-      }
-    );
-    if (control.polygon) {
-      map.removeLayer(control.polygon);
-    }
-    control.polygon = polygon;
-    map.addLayer(control.polygon);
+    map.fire('as:update-polygon');
+
     // close line
     if (control.closeLine) {
       map.removeLayer(control.closeLine);
@@ -107,4 +128,17 @@ export function onActivate(event) {
   event.preventDefault();
   event.target.blur();
   this.setActive(!this.options.active);
+}
+
+export function onMarkerDrag(control, map, index) {
+  return (event) => {
+    const { latlng } = event;
+    global.requestAnimationFrame(() => {
+      const newPoint = map.latLngToContainerPoint(latlng);
+      const { point } = control.markers[index];
+      point.x = newPoint.x;
+      point.y = newPoint.y;
+      map.fire('as:update-polygon');
+    });
+  };
 }

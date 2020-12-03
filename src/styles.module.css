@@ -26,7 +26,7 @@
 }
 
 .leafletAreaSelectorControl button img {
-  max-width: 100%;
+  width: 100%;
 }
 
 .leafletMapOverlayPane:global.inactive {
@@ -62,9 +62,12 @@
   height: 16px;
   border: 1px solid #0e4e73;
   background-color: #fff;
-  /* cursor: grab; */
+  cursor: grabbing;
 }
 .areaSelectMarker:hover {
+  background-color: #0e4e73;
+}
+.areaSelectMarker:global.active {
   background-color: #0e4e73;
 }
 
