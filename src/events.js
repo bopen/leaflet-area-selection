@@ -38,6 +38,15 @@ export function onAddPoint(control, map) {
       marker,
       index,
     };
+    marker.on(
+      'dblclick',
+      ((length) => (event) => {
+        map.fire('as:marker-remove', {
+          ...newEdge,
+          index: index === null ? length : index,
+        });
+      })(control.markers.length)
+    );
     marker.addTo(map);
     map.fire('as:marker-add', newEdge);
     // If this point as not been added at the end, we need to update even handlers HOC params to update index
@@ -45,6 +54,13 @@ export function onAddPoint(control, map) {
       for (let i = index + 1; i < control.markers.length; i++) {
         control.markers[i].marker.off('drag');
         control.markers[i].marker.on('drag', onMarkerDrag(control, map, i));
+        control.markers[i].marker.off('dblclick');
+        control.markers[i].marker.on('dblclick', (event) => {
+          map.fire('as:marker-remove', {
+            ...control.markers[i],
+            index: i,
+          });
+        });
       }
     }
   };
@@ -102,6 +118,33 @@ export function onAddMarker(control, map) {
         );
         map.addLayer(control.closeLine);
       }
+    }
+  };
+}
+
+export function onRemoveMarker(control, map) {
+  return ({ index = 0, marker }) => {
+    const { markers } = control;
+    const enoughPoints = markers.length > 3;
+    if (!enoughPoints) {
+      return;
+    }
+    const removed = control.markers.splice(index || 0, 1);
+    removed[0].marker.removeFrom(map);
+    map.fire('as:update-polygon');
+    if (control.phase === 'adjust') {
+      map.fire('as:update-ghost-points');
+    }
+    for (let i = index; i < control.markers.length; i++) {
+      control.markers[i].marker.off('drag');
+      control.markers[i].marker.on('drag', onMarkerDrag(control, map, i));
+      control.markers[i].marker.off('dblclick');
+      control.markers[i].marker.on('dblclick', (event) => {
+        map.fire('as:marker-remove', {
+          ...control.markers[i],
+          index: i,
+        });
+      });
     }
   };
 }

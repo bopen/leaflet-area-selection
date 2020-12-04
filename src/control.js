@@ -6,8 +6,9 @@ import {
   onAddMarker,
   onAddPoint,
   onPolygonCreationEnd,
-  onUpdatePolygon,
+  onRemoveMarker,
   onUpdateGhostPoints,
+  onUpdatePolygon,
 } from './events';
 import iconImage from 'images/area-icon.svg';
 
@@ -52,6 +53,7 @@ export const DrawAreaSelection = Control.extend({
     map.on('moveend', this.mapMoveEnd.bind(this));
     map.on('as:point-add', onAddPoint(this, map));
     map.on('as:marker-add', onAddMarker(this, map));
+    map.on('as:marker-remove', onRemoveMarker(this, map));
     map.on('as:creation-end', onPolygonCreationEnd(this, map));
     map.on('as:update-polygon', onUpdatePolygon(this, map));
     map.on('as:update-ghost-points', onUpdateGhostPoints(this, map));
