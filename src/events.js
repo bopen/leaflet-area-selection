@@ -233,10 +233,11 @@ export function onActivate(event) {
   event.preventDefault();
   event.target.blur();
   // if current state is active, we need to deactivate
-  this.options.active
+  const activeState = this.options.active || this.phase === 'adjust';
+  activeState
     ? this.activateButton.classList.remove('active')
     : this.activateButton.classList.add('active');
-  this.setPhase(this.options.active ? 'inactive' : 'draw', true);
+  this.setPhase(activeState ? 'inactive' : 'draw', true);
 }
 
 export function onMarkerDrag(index) {
