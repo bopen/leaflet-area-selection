@@ -44,6 +44,7 @@ const areaSelection = new DrawAreaSelection({
     preview.innerText = JSON.stringify(polygon.toGeoJSON(2), undefined, 2);
     preview.scrollTop = preview.scrollHeight;
   },
+  position: 'bottomleft',
 });
 
 map.addControl(areaSelection);
