@@ -31,3 +31,26 @@ pre {
   box-shadow: 3px 3px 6px -1px #303030;
   border-radius: 5px;
 }
+
+main {
+  display: flex;
+  flex-direction: column;
+}
+
+@media screen and (max-width: 767px) and (orientation: landscape) {
+  main {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .map-container {
+    height: calc(100vh - 10px);
+    width: 70%;
+  }
+  .show-selection {
+    font-size: 11px;
+    height: calc(100vh - 10px);
+    width: 30%;
+    max-height: none;
+  }
+}

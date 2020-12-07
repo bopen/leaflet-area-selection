@@ -1,6 +1,6 @@
 import { DomUtil, Control, Util, Point } from 'leaflet';
 import { createPane, PANE_NAME } from './drawing-pane';
-import { cls, setPosition } from './utils';
+import { cls, setPosition, CLICK_EVT } from './utils';
 import {
   onActivate,
   onAddMarker,
@@ -18,6 +18,8 @@ export const DrawAreaSelection = Control.extend({
     active: false,
     // callback called when draw phase is complete and at every polygon adjustement
     onPolygonReady: (polygon) => {},
+    // partially fade the map when draw phase is activated
+    fadeOnActivation: true,
   },
 
   initialize: function (options = {}) {
@@ -33,12 +35,15 @@ export const DrawAreaSelection = Control.extend({
     this.polygon = null;
     // on drawing phase: a line from the last drawn point to the first ones
     this.closeLine = null;
+
+    this._mapMoveStart = this.mapMoveStart.bind(this);
+    this._mapMoveEnd = this.mapMoveEnd.bind(this);
   },
 
   onAdd: function (map) {
     this._container = DomUtil.create('div', cls('leaflet-area-selector-control'));
     this.activateButton = DomUtil.create('button', '', this._container);
-    this.activateButton.addEventListener('click', onActivate.bind(this));
+    this.activateButton.addEventListener(CLICK_EVT, onActivate.bind(this));
     this.activateButton.addEventListener('dblclick', (event) => {
       event.stopPropagation();
     });
@@ -49,15 +54,34 @@ export const DrawAreaSelection = Control.extend({
     icon.setAttribute('src', iconImage);
     this._map = map;
     createPane(map, this.options);
-    map.on('movestart', this.mapMoveStart.bind(this));
-    map.on('moveend', this.mapMoveEnd.bind(this));
-    map.on('as:point-add', onAddPoint(this, map));
-    map.on('as:marker-add', onAddMarker(this, map));
-    map.on('as:marker-remove', onRemoveMarker(this, map));
-    map.on('as:creation-end', onPolygonCreationEnd(this, map));
-    map.on('as:update-polygon', onUpdatePolygon(this, map));
-    map.on('as:update-ghost-points', onUpdateGhostPoints(this, map));
+    map.on('movestart', this._mapMoveStart);
+    map.on('moveend', this._mapMoveEnd);
+    map.on('as:point-add', onAddPoint.bind(this));
+    map.on('as:marker-add', onAddMarker.bind(this));
+    map.on('as:marker-remove', onRemoveMarker.bind(this));
+    map.on('as:creation-end', onPolygonCreationEnd.bind(this));
+    map.on('as:update-polygon', onUpdatePolygon.bind(this));
+    map.on('as:update-ghost-points', onUpdateGhostPoints.bind(this));
     return this._container;
+  },
+
+  onRemove: function (map) {
+    map.on('movestart', this._mapMoveStart);
+    map.on('moveend', this._mapMoveEnd);
+    map.off('as:point-add');
+    map.off('as:marker-add');
+    map.off('as:marker-remove');
+    map.off('as:creation-end');
+    map.off('as:update-polygon');
+    map.off('as:update-ghost-points');
+  },
+
+  getMap: function () {
+    return this._map;
+  },
+
+  onPolygonReady: function () {
+    this.options.onPolygonReady(this.polygon);
   },
 
   setPhase(phase, forceClear = false) {

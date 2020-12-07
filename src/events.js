@@ -2,227 +2,231 @@ import { DivIcon, Marker, Point, Polygon, Polyline } from 'leaflet';
 import { cls } from './utils';
 import { addEndClickArea } from './drawing-pane';
 
-export function onAddPoint(control, map) {
-  return (event) => {
-    // Default behavior while dragging
-    if (control.map_moving) {
-      return;
-    }
-    const { clientX, clientY, index = null } = event;
-    const container = map.getContainer();
-    const bbox = container.getBoundingClientRect();
-    const x = clientX - bbox.left;
-    const y = clientY - bbox.top;
-    if (control.markers.length === 0) {
-      // this is the first point: let's add a sensible click area on the pane too
-      addEndClickArea(control, map, [x, y]);
-    }
-    const point = new Point(x, y);
-    const icon = new DivIcon({
-      className: cls('area-select-marker'),
-      iconSize: [16, 16],
-    });
-    const marker = new Marker(map.containerPointToLatLng(point), {
-      icon,
-      draggable: true,
-    });
-    marker.on('drag', onMarkerDrag(control, map, index === null ? control.markers.length : index));
-    marker.on('dragstart', (event) => {
-      event.target.getElement().classList.add('active');
-    });
-    marker.on('dragend', (event) => {
-      event.target.getElement().classList.remove('active');
-    });
-    const newEdge = {
-      point,
-      marker,
-      index,
-    };
-    marker.on(
-      'dblclick',
-      ((length) => (event) => {
-        map.fire('as:marker-remove', {
-          ...newEdge,
-          index: index === null ? length : index,
-        });
-      })(control.markers.length)
-    );
-    marker.addTo(map);
-    map.fire('as:marker-add', newEdge);
-    // If this point as not been added at the end, we need to update even handlers HOC params to update index
-    if (index !== null) {
-      for (let i = index + 1; i < control.markers.length; i++) {
-        control.markers[i].marker.off('drag');
-        control.markers[i].marker.on('drag', onMarkerDrag(control, map, i));
-        control.markers[i].marker.off('dblclick');
-        control.markers[i].marker.on('dblclick', (event) => {
-          map.fire('as:marker-remove', {
-            ...control.markers[i],
-            index: i,
-          });
-        });
-      }
-    }
+/**
+ * Event handler reacting to an add point action
+ * @param {MouseEvent|TouchEvent} event
+ */
+export function onAddPoint(event) {
+  // Default behavior while dragging
+  if (this.map_moving) {
+    return;
+  }
+  const { index = null } = event;
+  let { clientX, clientY } = event;
+  if (clientX === undefined && clientY === undefined) {
+    const touch = event.touches[0];
+    clientX = touch.clientX;
+    clientY = touch.clientY;
+  }
+  const map = this.getMap();
+  const container = map.getContainer();
+  const bbox = container.getBoundingClientRect();
+  const x = clientX - bbox.left;
+  const y = clientY - bbox.top;
+  if (this.markers.length === 0) {
+    // this is the first point: let's add a sensible click area on the pane too
+    addEndClickArea(this, [x, y]);
+  }
+  const point = new Point(x, y);
+  const icon = new DivIcon({
+    className: cls('area-select-marker'),
+    iconSize: [16, 16],
+  });
+  const marker = new Marker(map.containerPointToLatLng(point), {
+    icon,
+    draggable: true,
+  });
+  const _onMarkerDrag = onMarkerDrag.bind(this);
+  marker.on('drag', _onMarkerDrag(index === null ? this.markers.length : index));
+  marker.on('dragstart', (event) => {
+    event.target.getElement().classList.add('active');
+  });
+  marker.on('dragend', (event) => {
+    event.target.getElement().classList.remove('active');
+  });
+  const newEdge = {
+    point,
+    marker,
+    index,
   };
-}
-
-export function onAddMarker(control, map) {
-  return ({ index = null, ...rest }) => {
-    const edge = {
-      marker: rest.marker,
-      point: rest.point,
-    };
-    const { markers } = control;
-    if (index === null) {
-      markers.push(edge);
-    } else {
-      markers.splice(index, 0, edge);
-    }
-    const enoughPoints = markers.length >= 3;
-    if (control.phase === 'draw') {
-      if (!enoughPoints) {
-        markers.forEach(({ marker }) => {
-          const icon = marker.getIcon();
-          icon.options.className = cls('area-select-marker', 'invalid');
-          marker.setIcon(icon);
-        });
-      } else if (markers.length === 3) {
-        // Restore colors
-        markers.forEach(({ marker }, index) => {
-          const icon = marker.getIcon();
-          icon.options.className = cls('area-select-marker', index === 0 ? 'start-marker' : null);
-          marker.setIcon(icon);
-        });
-      }
-    }
-    map.fire('as:update-polygon');
-    if (control.phase === 'adjust') {
-      map.fire('as:update-ghost-points');
-    }
-
-    if (control.phase === 'draw') {
-      // close line
-      if (control.closeLine) {
-        map.removeLayer(control.closeLine);
-      }
-      if (enoughPoints) {
-        control.closeLine = new Polyline(
-          [
-            map.containerPointToLatLng(markers[0].point),
-            map.containerPointToLatLng(markers[markers.length - 1].point),
-          ],
-          {
-            weight: 3,
-            color: '#c0c0c0',
-          }
-        );
-        map.addLayer(control.closeLine);
-      }
-    }
-  };
-}
-
-export function onRemoveMarker(control, map) {
-  return ({ index = 0, marker }) => {
-    const { markers } = control;
-    const enoughPoints = markers.length > 3;
-    if (!enoughPoints) {
-      return;
-    }
-    const removed = control.markers.splice(index || 0, 1);
-    removed[0].marker.removeFrom(map);
-    map.fire('as:update-polygon');
-    if (control.phase === 'adjust') {
-      map.fire('as:update-ghost-points');
-    }
-    for (let i = index; i < control.markers.length; i++) {
-      control.markers[i].marker.off('drag');
-      control.markers[i].marker.on('drag', onMarkerDrag(control, map, i));
-      control.markers[i].marker.off('dblclick');
-      control.markers[i].marker.on('dblclick', (event) => {
+  marker.on(
+    'dblclick',
+    ((length) => (event) => {
+      map.fire('as:marker-remove', {
+        ...newEdge,
+        index: index === null ? length : index,
+      });
+    })(this.markers.length)
+  );
+  marker.addTo(map);
+  map.fire('as:marker-add', newEdge);
+  // If this point as not been added at the end, we need to update even handlers HOC params to update index
+  if (index !== null) {
+    for (let i = index + 1; i < this.markers.length; i++) {
+      this.markers[i].marker.off('drag');
+      this.markers[i].marker.on('drag', _onMarkerDrag(i));
+      this.markers[i].marker.off('dblclick');
+      this.markers[i].marker.on('dblclick', (event) => {
         map.fire('as:marker-remove', {
-          ...control.markers[i],
+          ...this.markers[i],
           index: i,
         });
       });
     }
+  }
+}
+
+export function onAddMarker({ index = null, ...rest }) {
+  const map = this.getMap();
+  const edge = {
+    marker: rest.marker,
+    point: rest.point,
   };
+  const { markers } = this;
+  if (index === null) {
+    markers.push(edge);
+  } else {
+    markers.splice(index, 0, edge);
+  }
+  const enoughPoints = markers.length >= 3;
+  if (this.phase === 'draw') {
+    if (!enoughPoints) {
+      markers.forEach(({ marker }) => {
+        const icon = marker.getIcon();
+        icon.options.className = cls('area-select-marker', 'invalid');
+        marker.setIcon(icon);
+      });
+    } else if (markers.length === 3) {
+      // Restore colors
+      markers.forEach(({ marker }, index) => {
+        const icon = marker.getIcon();
+        icon.options.className = cls('area-select-marker', index === 0 ? 'start-marker' : null);
+        marker.setIcon(icon);
+      });
+    }
+  }
+  map.fire('as:update-polygon');
+  if (this.phase === 'adjust') {
+    map.fire('as:update-ghost-points');
+    this.onPolygonReady();
+  }
+
+  if (this.phase === 'draw') {
+    // close line
+    if (this.closeLine) {
+      map.removeLayer(this.closeLine);
+    }
+    if (enoughPoints) {
+      this.closeLine = new Polyline(
+        [
+          map.containerPointToLatLng(markers[0].point),
+          map.containerPointToLatLng(markers[markers.length - 1].point),
+        ],
+        {
+          weight: 3,
+          color: '#c0c0c0',
+        }
+      );
+      map.addLayer(this.closeLine);
+    }
+  }
+}
+
+export function onRemoveMarker({ index = 0 }) {
+  const map = this.getMap();
+  const { markers } = this;
+  const enoughPoints = markers.length > 3;
+  if (!enoughPoints) {
+    return;
+  }
+  const removed = this.markers.splice(index || 0, 1);
+  removed[0].marker.removeFrom(map);
+  map.fire('as:update-polygon');
+  if (this.phase === 'adjust') {
+    map.fire('as:update-ghost-points');
+  }
+  for (let i = index; i < this.markers.length; i++) {
+    this.markers[i].marker.off('drag');
+    this.markers[i].marker.on('drag', onMarkerDrag.bind(this)(i));
+    this.markers[i].marker.off('dblclick');
+    this.markers[i].marker.on('dblclick', (event) => {
+      map.fire('as:marker-remove', {
+        ...this.markers[i],
+        index: i,
+      });
+    });
+  }
 }
 
 /**
  * Refresh the polygon on the map
- * @param {Control} control
- * @param {Map} map
  */
-export function onUpdatePolygon(control, map) {
-  return (event) => {
-    const { markers } = control;
-    const enoughPoints = markers.length >= 3;
-    const polygon = new Polygon(
-      markers.map(({ marker }) => {
-        return marker.getLatLng();
-        // return map.containerPointToLatLng(point);
-      }),
-      {
-        color: enoughPoints ? 'rgb(45, 123, 200)' : 'rgba(220, 53, 69, 0.7)',
-        weight: 2,
-        ...(!enoughPoints && { dashArray: '5, 10' }),
-      }
-    );
-    if (control.polygon) {
-      map.removeLayer(control.polygon);
+export function onUpdatePolygon() {
+  const map = this.getMap();
+  const { markers } = this;
+  const enoughPoints = markers.length >= 3;
+  const polygon = new Polygon(
+    markers.map(({ marker }) => {
+      return marker.getLatLng();
+      // return map.containerPointToLatLng(point);
+    }),
+    {
+      color: enoughPoints ? 'rgb(45, 123, 200)' : 'rgba(220, 53, 69, 0.7)',
+      weight: 2,
+      ...(!enoughPoints && { dashArray: '5, 10' }),
     }
-    control.polygon = polygon;
-    map.addLayer(control.polygon);
-  };
+  );
+  if (this.polygon) {
+    map.removeLayer(this.polygon);
+  }
+  this.polygon = polygon;
+  map.addLayer(this.polygon);
 }
 
-export function onUpdateGhostPoints(control, map) {
-  return (event) => {
-    global.requestAnimationFrame(() => {
-      control.clearGhostMarkers();
-      const { markers, ghostMarkers } = control;
-      markers.forEach((currentMarker, index) => {
-        const nextMarker = markers[index + 1] ? markers[index + 1] : markers[0];
-        const currentLatLng = currentMarker.marker.getLatLng();
-        const nextLatLng = nextMarker.marker.getLatLng();
-        const point = map.latLngToContainerPoint([
-          (currentLatLng.lat + nextLatLng.lat) / 2,
-          (currentLatLng.lng + nextLatLng.lng) / 2,
-        ]);
+export function onUpdateGhostPoints() {
+  const map = this.getMap();
+  global.requestAnimationFrame(() => {
+    this.clearGhostMarkers();
+    const { markers, ghostMarkers } = this;
+    markers.forEach((currentMarker, index) => {
+      const nextMarker = markers[index + 1] ? markers[index + 1] : markers[0];
+      const currentLatLng = currentMarker.marker.getLatLng();
+      const nextLatLng = nextMarker.marker.getLatLng();
+      const point = map.latLngToContainerPoint([
+        (currentLatLng.lat + nextLatLng.lat) / 2,
+        (currentLatLng.lng + nextLatLng.lng) / 2,
+      ]);
 
-        const icon = new DivIcon({
-          className: cls('area-select-ghost-marker'),
-          iconSize: [16, 16],
-        });
-        const marker = new Marker(map.containerPointToLatLng(point), {
-          icon,
-          draggable: true,
-        });
-        const newGhostMarker = {
-          point,
-          marker,
-        };
-        marker.on('drag', onGhostMarkerDrag(control, map, ghostMarkers.length));
-        marker.on('dragstart', onGhostMarkerDragStart(control, map));
-        marker.on('dragend', onGhostMarkerDragEnd(control, map, ghostMarkers.length));
-        ghostMarkers.push(newGhostMarker);
-        marker.addTo(map);
+      const icon = new DivIcon({
+        className: cls('area-select-ghost-marker'),
+        iconSize: [16, 16],
       });
+      const marker = new Marker(map.containerPointToLatLng(point), {
+        icon,
+        draggable: true,
+      });
+      const newGhostMarker = {
+        point,
+        marker,
+      };
+      marker.on('drag', onGhostMarkerDrag.bind(this)(ghostMarkers.length));
+      marker.on('dragstart', onGhostMarkerDragStart.bind(this)());
+      marker.on('dragend', onGhostMarkerDragEnd.bind(this)(ghostMarkers.length));
+      ghostMarkers.push(newGhostMarker);
+      marker.addTo(map);
     });
-  };
+  });
 }
 
-export function onPolygonCreationEnd(control, map) {
-  return (event) => {
-    map.removeLayer(control.closeLine);
-    control.closeLine = null;
-    // Remove style for the final marker icon
-    control.markers[0].marker.getElement().classList.remove('start-marker');
-    control.setPhase('adjust');
-    map.fire('as:update-ghost-points');
-    control.options.onPolygonReady(control.polygon);
-  };
+export function onPolygonCreationEnd() {
+  const map = this.getMap();
+  map.removeLayer(this.closeLine);
+  this.closeLine = null;
+  // Remove style for the final marker icon
+  this.markers[0].marker.getElement().classList.remove('start-marker');
+  this.setPhase('adjust');
+  map.fire('as:update-ghost-points');
+  this.onPolygonReady();
 }
 
 export function onActivate(event) {
@@ -230,17 +234,18 @@ export function onActivate(event) {
   event.target.blur();
   // if current state is active, we need to deactivate
   this.options.active
-    ? this.activateButton.classList.add('active')
-    : this.activateButton.classList.remove('active');
+    ? this.activateButton.classList.remove('active')
+    : this.activateButton.classList.add('active');
   this.setPhase(this.options.active ? 'inactive' : 'draw', true);
 }
 
-export function onMarkerDrag(control, map, index) {
+export function onMarkerDrag(index) {
+  const map = this.getMap();
   return (event) => {
     const { latlng } = event;
     global.requestAnimationFrame(() => {
       const newPoint = map.latLngToContainerPoint(latlng);
-      const { point } = control.markers[index];
+      const { point } = this.markers[index];
       point.x = newPoint.x;
       point.y = newPoint.y;
       map.fire('as:update-polygon');
@@ -249,19 +254,18 @@ export function onMarkerDrag(control, map, index) {
   };
 }
 
-export function onGhostMarkerDrag(control, map, index) {
+export function onGhostMarkerDrag(index) {
+  const map = this.getMap();
   return (event) => {
     const { latlng } = event;
     global.requestAnimationFrame(() => {
       // Given a ghost point, markers to be used as edges are the one at +0 and +1
-      const firstPoint = control.markers[index];
-      const lastPoint = control.markers[index + 1]
-        ? control.markers[index + 1]
-        : control.markers[0];
-      if (control.ghostPolygon) {
-        map.removeLayer(control.ghostPolygon);
+      const firstPoint = this.markers[index];
+      const lastPoint = this.markers[index + 1] ? this.markers[index + 1] : this.markers[0];
+      if (this.ghostPolygon) {
+        map.removeLayer(this.ghostPolygon);
       }
-      control.ghostPolygon = new Polygon(
+      this.ghostPolygon = new Polygon(
         [
           map.containerPointToLatLng(firstPoint.point),
           latlng,
@@ -275,25 +279,26 @@ export function onGhostMarkerDrag(control, map, index) {
           dashArray: '5, 10',
         }
       );
-      map.addLayer(control.ghostPolygon);
+      map.addLayer(this.ghostPolygon);
       map.fire('as:update-polygon');
     });
   };
 }
 
-export function onGhostMarkerDragStart(control, map) {
+export function onGhostMarkerDragStart() {
   return (event) => {
     event.target.getElement().classList.add('active');
   };
 }
 
-export function onGhostMarkerDragEnd(control, map, index) {
+export function onGhostMarkerDragEnd(index) {
+  const map = this.getMap();
   return (event) => {
     const { target } = event;
     target.getElement().classList.remove('active');
     target.removeFrom(map);
-    if (control.ghostPolygon) {
-      map.removeLayer(control.ghostPolygon);
+    if (this.ghostPolygon) {
+      map.removeLayer(this.ghostPolygon);
     }
     const newPoint = map.latLngToContainerPoint(target.getLatLng());
     const fakeEvent = {

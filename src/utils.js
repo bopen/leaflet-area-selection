@@ -39,3 +39,5 @@ export function setPosition(el, point, offset = null) {
     el.style.top = nextPoint.y + 'px';
   }
 }
+
+export const CLICK_EVT = Browser.mobile ? 'touchstart' : 'click';
