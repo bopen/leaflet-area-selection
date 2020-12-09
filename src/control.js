@@ -10,7 +10,10 @@ import {
   onUpdateGhostPoints,
   onUpdatePolygon,
 } from './events';
-import iconImage from 'images/area-icon.svg';
+
+// FIXME: Until https://github.com/transitive-bullshit/create-react-library/issues/307 is fixed
+// eslint-disable-next-line import/no-absolute-path
+import iconImage from '/./images/area-icon.png';
 
 export const DrawAreaSelection = Control.extend({
   options: {
@@ -105,7 +108,7 @@ export const DrawAreaSelection = Control.extend({
   },
 
   mapMoveEnd: function (event) {
-    global.requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
       this.map_moving = false;
     });
     const map = this._map;

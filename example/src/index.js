@@ -37,8 +37,6 @@ L.marker(center)
   .bindPopup(popup);
 
 const areaSelection = new DrawAreaSelection({
-  active: true,
-  // fadeOnActivation: false,
   onPolygonReady: (polygon) => {
     const preview = document.getElementById('polygon');
     preview.innerText = JSON.stringify(polygon.toGeoJSON(2), undefined, 2);

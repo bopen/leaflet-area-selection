@@ -185,7 +185,7 @@ export function onUpdatePolygon() {
 
 export function onUpdateGhostPoints() {
   const map = this.getMap();
-  global.requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
     this.clearGhostMarkers();
     const { markers, ghostMarkers } = this;
     markers.forEach((currentMarker, index) => {
@@ -244,7 +244,7 @@ export function onMarkerDrag(index) {
   const map = this.getMap();
   return (event) => {
     const { latlng } = event;
-    global.requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
       const newPoint = map.latLngToContainerPoint(latlng);
       const { point } = this.markers[index];
       point.x = newPoint.x;
@@ -259,7 +259,7 @@ export function onGhostMarkerDrag(index) {
   const map = this.getMap();
   return (event) => {
     const { latlng } = event;
-    global.requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
       // Given a ghost point, markers to be used as edges are the one at +0 and +1
       const firstPoint = this.markers[index];
       const lastPoint = this.markers[index + 1] ? this.markers[index + 1] : this.markers[0];

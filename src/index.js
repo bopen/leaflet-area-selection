@@ -1,1 +1,9 @@
-export { DrawAreaSelection, drawAreaSelection } from './control';
+import { Util, Control } from 'leaflet';
+import { DrawAreaSelection, drawAreaSelection } from './control';
+
+Util.extend(Control, {
+  DrawAreaSelection,
+  drawAreaSelection,
+});
+
+export { DrawAreaSelection, drawAreaSelection };
