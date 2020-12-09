@@ -230,6 +230,10 @@ export function onPolygonCreationEnd() {
 }
 
 export function onActivate(event) {
+  // Non-sense, but required on Safari. Probably related to https://github.com/Leaflet/Leaflet/issues/7255
+  if (!event.isTrusted) {
+    return;
+  }
   event.preventDefault();
   event.target.blur();
   // if current state is active, we need to deactivate
