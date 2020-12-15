@@ -21,8 +21,10 @@
     "node": ">=12"
   },
   "scripts": {
-    "build": "microbundle-crl --globals leaflet=L --no-compress --format modern,cjs,umd",
-    "start": "microbundle-crl watch --globals leaflet=L --no-compress --format modern,cjs,umd",
+    "clean": "rimraf dist/*",
+    "copy-assets": "copyfiles -f src/images/area-icon.png dist/",
+    "build": "npm run clean && npm run copy-assets && microbundle-crl --globals leaflet=L,leaflet/dist/leaflet-src.esm=L --no-compress --format modern,cjs,umd",
+    "start": "npm run clean && npm run copy-assets && microbundle-crl watch --globals leaflet=L,leaflet/dist/leaflet-src.esm=L --no-compress --format modern,cjs,umd",
     "prepare": "run-s build",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
@@ -37,6 +39,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
+    "copyfiles": "^2.4.1",
     "cross-env": "^7.0.2",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",
@@ -51,7 +54,8 @@
     "microbundle-crl": "^0.13.11",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.4",
-    "react-scripts": "^3.4.1"
+    "react-scripts": "^3.4.1",
+    "rimraf": "^3.0.2"
   },
   "files": [
     "dist"
