@@ -1,4 +1,4 @@
-import { DomUtil, Point } from 'leaflet';
+import { DomUtil, Point } from 'leaflet/dist/leaflet-src.esm';
 import { cls, insertAfter, setPosition, CLICK_EVT } from './utils';
 
 export const PANE_NAME = 'area-draw-selection';

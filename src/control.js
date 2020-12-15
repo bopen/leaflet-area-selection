@@ -1,4 +1,4 @@
-import { DomUtil, Control, Util, Point } from 'leaflet';
+import { DomUtil, Control, Util, Point } from 'leaflet/dist/leaflet-src.esm';
 import { createPane, PANE_NAME } from './drawing-pane';
 import { cls, setPosition, CLICK_EVT } from './utils';
 import {
@@ -10,10 +10,6 @@ import {
   onUpdateGhostPoints,
   onUpdatePolygon,
 } from './events';
-
-// FIXME: Until https://github.com/transitive-bullshit/create-react-library/issues/307 is fixed
-// eslint-disable-next-line import/no-absolute-path
-import iconImage from '/./images/area-icon.png';
 
 export const DrawAreaSelection = Control.extend({
   options: {
@@ -53,8 +49,6 @@ export const DrawAreaSelection = Control.extend({
     this.options.active
       ? this.activateButton.classList.add('active')
       : this.activateButton.classList.remove('active');
-    const icon = DomUtil.create('img', '', this.activateButton);
-    icon.setAttribute('src', iconImage);
     this._map = map;
     createPane(map, this.options);
     map.on('movestart', this._mapMoveStart);

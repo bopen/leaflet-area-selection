@@ -1,4 +1,4 @@
-import { DivIcon, Marker, Point, Polygon, Polyline } from 'leaflet';
+import { DivIcon, Marker, Point, Polygon, Polyline } from 'leaflet/dist/leaflet-src.esm';
 import { cls } from './utils';
 import { addEndClickArea } from './drawing-pane';
 
@@ -43,6 +43,9 @@ export function onAddPoint(event) {
   });
   marker.on('dragend', (event) => {
     event.target.getElement().classList.remove('active');
+    requestAnimationFrame(() => {
+      this.onPolygonReady();
+    });
   });
   const newEdge = {
     point,
@@ -118,10 +121,7 @@ export function onAddMarker({ index = null, ...rest }) {
     }
     if (enoughPoints) {
       this.closeLine = new Polyline(
-        [
-          map.containerPointToLatLng(markers[0].point),
-          map.containerPointToLatLng(markers[markers.length - 1].point),
-        ],
+        [markers[0].marker.getLatLng(), markers[markers.length - 1].marker.getLatLng()],
         {
           weight: 3,
           color: '#c0c0c0',
@@ -156,6 +156,7 @@ export function onRemoveMarker({ index = 0 }) {
       });
     });
   }
+  this.onPolygonReady();
 }
 
 /**
