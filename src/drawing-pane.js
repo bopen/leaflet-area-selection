@@ -53,3 +53,12 @@ export function addEndClickArea(control, [x, y]) {
   marker.addEventListener('mouseleave', control.outClosePoint.bind(control));
   setPosition(marker, new Point(x, y), new Point(-bbox.width / 2, -bbox.height / 2));
 }
+
+export function removeEndClickArea(control) {
+  const map = control.getMap();
+  const pane = map.getPane(PANE_NAME);
+  const marker = pane.querySelector('.end-selection-area');
+  if (marker) {
+    marker.remove();
+  }
+}

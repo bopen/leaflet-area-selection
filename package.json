@@ -1,6 +1,6 @@
 {
   "name": "@bopen/leaflet-area-selection",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Create and manipulate a polygonal area on a Leaflet map",
   "author": "B-Open",
   "license": "MIT",

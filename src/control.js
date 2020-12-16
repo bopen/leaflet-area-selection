@@ -63,8 +63,8 @@ export const DrawAreaSelection = Control.extend({
   },
 
   onRemove: function (map) {
-    map.on('movestart', this._mapMoveStart);
-    map.on('moveend', this._mapMoveEnd);
+    map.off('movestart', this._mapMoveStart);
+    map.off('moveend', this._mapMoveEnd);
     map.off('as:point-add');
     map.off('as:marker-add');
     map.off('as:marker-remove');

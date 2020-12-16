@@ -1,6 +1,6 @@
 import { DivIcon, Marker, Point, Polygon, Polyline } from 'leaflet/dist/leaflet-src.esm';
 import { cls } from './utils';
-import { addEndClickArea } from './drawing-pane';
+import { addEndClickArea, removeEndClickArea } from './drawing-pane';
 
 /**
  * Event handler reacting to an add point action
@@ -228,6 +228,7 @@ export function onPolygonCreationEnd() {
   this.setPhase('adjust');
   map.fire('as:update-ghost-points');
   this.onPolygonReady();
+  removeEndClickArea(this);
 }
 
 export function onActivate(event) {
@@ -239,6 +240,9 @@ export function onActivate(event) {
   event.target.blur();
   // if current state is active, we need to deactivate
   const activeState = this.options.active || this.phase === 'adjust';
+  if (activeState) {
+    removeEndClickArea(this);
+  }
   activeState
     ? this.activateButton.classList.remove('active')
     : this.activateButton.classList.add('active');

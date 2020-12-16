@@ -37,7 +37,7 @@ marker(center).addTo(map).bindPopup(popup);
 const areaSelection = new DrawAreaSelection({
   onPolygonReady: (polygon) => {
     const preview = document.getElementById('polygon');
-    preview.innerText = JSON.stringify(polygon.toGeoJSON(2), undefined, 2);
+    preview.innerText = JSON.stringify(polygon.toGeoJSON(3), undefined, 2);
     preview.scrollTop = preview.scrollHeight;
   },
   position: 'bottomleft',
