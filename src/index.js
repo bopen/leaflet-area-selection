@@ -1,4 +1,4 @@
-import { Util, Control } from 'leaflet/dist/leaflet-src.esm';
+import { Util, Control } from 'leaflet';
 import { DrawAreaSelection, drawAreaSelection } from './control';
 
 Util.extend(Control, {

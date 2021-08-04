@@ -1,4 +1,4 @@
-import { Map, Icon, tileLayer, marker } from 'leaflet/dist/leaflet-src.esm';
+import { Map, Icon, tileLayer, marker } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '@bopen/leaflet-area-selection/dist/index.css';
 import { DrawAreaSelection } from '@bopen/leaflet-area-selection';

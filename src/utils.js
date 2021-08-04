@@ -1,4 +1,4 @@
-import { Browser, DomUtil } from 'leaflet/dist/leaflet-src.esm';
+import { Browser, DomUtil } from 'leaflet';
 import styles from './styles.module.css';
 
 export function toCamelCase(name) {

@@ -1,4 +1,4 @@
-import { DomUtil, Control, Util, Point } from 'leaflet/dist/leaflet-src.esm';
+import { DomUtil, Control, Util, Point } from 'leaflet';
 import { createPane, PANE_NAME } from './drawing-pane';
 import { cls, setPosition, CLICK_EVT } from './utils';
 import {

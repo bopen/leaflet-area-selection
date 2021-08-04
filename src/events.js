@@ -1,6 +1,11 @@
-import { DivIcon, Marker, Point, Polygon, Polyline } from 'leaflet/dist/leaflet-src.esm';
+import { DivIcon, Marker, Point, Polygon, Polyline } from 'leaflet';
 import { cls } from './utils';
 import { addEndClickArea, removeEndClickArea } from './drawing-pane';
+
+function doNothingHandler(event) {
+  event.originalEvent.preventDefault();
+  event.originalEvent.stopPropagation();
+}
 
 /**
  * Event handler reacting to an add point action
@@ -13,6 +18,7 @@ export function onAddPoint(event) {
   }
   const { index = null } = event;
   let { clientX, clientY } = event;
+  // Touch device
   if (clientX === undefined && clientY === undefined) {
     const touch = event.touches[0];
     clientX = touch.clientX;
@@ -55,12 +61,14 @@ export function onAddPoint(event) {
   marker.on(
     'dblclick',
     ((length) => (event) => {
+      event.originalEvent.stopPropagation();
       map.fire('as:marker-remove', {
         ...newEdge,
         index: index === null ? length : index,
       });
     })(this.markers.length)
   );
+  marker.on('click', doNothingHandler);
   marker.addTo(map);
   map.fire('as:marker-add', newEdge);
   // If this point as not been added at the end, we need to update even handlers HOC params to update index
@@ -68,6 +76,8 @@ export function onAddPoint(event) {
     for (let i = index + 1; i < this.markers.length; i++) {
       this.markers[i].marker.off('drag');
       this.markers[i].marker.on('drag', _onMarkerDrag(i));
+      this.markers[i].marker.off('click');
+      this.markers[i].marker.on('click', doNothingHandler);
       this.markers[i].marker.off('dblclick');
       this.markers[i].marker.on('dblclick', (event) => {
         map.fire('as:marker-remove', {
@@ -148,8 +158,11 @@ export function onRemoveMarker({ index = 0 }) {
   for (let i = index; i < this.markers.length; i++) {
     this.markers[i].marker.off('drag');
     this.markers[i].marker.on('drag', onMarkerDrag.bind(this)(i));
+    this.markers[i].marker.off('click');
+    this.markers[i].marker.on('click', doNothingHandler);
     this.markers[i].marker.off('dblclick');
     this.markers[i].marker.on('dblclick', (event) => {
+      event.originalEvent.stopPropagation();
       map.fire('as:marker-remove', {
         ...this.markers[i],
         index: i,
@@ -210,6 +223,8 @@ export function onUpdateGhostPoints() {
         point,
         marker,
       };
+      marker.on('click', doNothingHandler);
+      marker.on('dblclick', doNothingHandler);
       marker.on('drag', onGhostMarkerDrag.bind(this)(ghostMarkers.length));
       marker.on('dragstart', onGhostMarkerDragStart.bind(this)());
       marker.on('dragend', onGhostMarkerDragEnd.bind(this)(ghostMarkers.length));
@@ -237,15 +252,21 @@ export function onActivate(event) {
     return;
   }
   event.preventDefault();
+  event.stopPropagation();
+  const map = this.getMap();
   event.target.blur();
   // if current state is active, we need to deactivate
   const activeState = this.options.active || this.phase === 'adjust';
   if (activeState) {
     removeEndClickArea(this);
   }
-  activeState
-    ? this.activateButton.classList.remove('active')
-    : this.activateButton.classList.add('active');
+  if (activeState) {
+    this.activateButton.classList.remove('active');
+    map.getContainer().classList.remove('drawing-area');
+  } else {
+    this.activateButton.classList.add('active');
+    map.getContainer().classList.add('drawing-area');
+  }
   this.setPhase(activeState ? 'inactive' : 'draw', true);
 }
 
@@ -311,9 +332,11 @@ export function onGhostMarkerDragEnd(index) {
       map.removeLayer(this.ghostPolygon);
     }
     const newPoint = map.latLngToContainerPoint(target.getLatLng());
+    const container = map.getContainer();
+    const bbox = container.getBoundingClientRect();
     const fakeEvent = {
-      clientX: newPoint.x,
-      clientY: newPoint.y,
+      clientX: newPoint.x + bbox.left,
+      clientY: newPoint.y + bbox.top,
       index: index + 1,
     };
     map.fire('as:point-add', fakeEvent);
