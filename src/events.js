@@ -191,6 +191,13 @@ export function onUpdatePolygon() {
       className: 'drawing-area-poligon',
     }
   );
+  polygon.on('dblclick', (ev) => {
+    // Preventing zoom-on-doubleclick is not working. I'll leave hacky workarounds to user's implementation
+    // See https://stackoverflow.com/questions/15406537/disable-map-zoom-on-circlemarker-double-click-in-leaflet
+    ev.originalEvent.stopPropagation();
+    this.onPolygonDblClick(ev);
+    return false;
+  });
   if (this.polygon) {
     map.removeLayer(this.polygon);
   }
@@ -259,16 +266,12 @@ export function onActivate(event) {
   // if current state is active, we need to deactivate
   const activeState = this.options.active || this.phase === 'adjust';
   if (activeState) {
-    removeEndClickArea(this);
-  }
-  if (activeState) {
-    this.activateButton.classList.remove('active');
-    map.getContainer().classList.remove('drawing-area');
+    this.deactivate();
   } else {
     this.activateButton.classList.add('active');
     map.getContainer().classList.add('drawing-area');
+    this.setPhase('draw', true);
   }
-  this.setPhase(activeState ? 'inactive' : 'draw', true);
 }
 
 export function onMarkerDrag(index) {

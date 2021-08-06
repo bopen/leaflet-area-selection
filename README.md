@@ -38,7 +38,9 @@ The `DrawAreaSelection` can receive a configuration object with followings suppo
 - `active` - the plugin starts as active, no need to run it from the button
 - `fadeOnActivation` - when actively drawing a new area the map is partially faded out
 - `onPolygonReady` - callback called every time a new complete polygon is ready.
-  Receives a [Leaflet.Polygon](https://leafletjs.com/reference.html#polygon) as argument.
+  Receives the [Leaflet.Polygon](https://leafletjs.com/reference.html#polygon) and the control instance as arguments.
+- `onPolygonDblClick` - called when performing a double-click on the draw polygon when in the adjustment phase (see below).
+  Receives three arguments: the [Leaflet.Polygon](https://leafletjs.com/reference.html#polygon), the control instance and the event.
 
 # User guide
 
@@ -48,12 +50,11 @@ Clicks on the map will trigger a creation of a polygon.
 User can continue adding points to the polygon (min length is 3) until the whole required area is covered.<br>
 To complete the polygon drawing phase user must click on the first (green) point created.
 
-At this point we enter the another phase, where user can:
+At this point we enter the **adjustment phase**, where user can:
 
 - move edges of the polygon by dragging them
 - create new edges, by dragging the ghost markers in the middle of every path
-
-User can also **delete** edges by double clicking on them.
+- deleting edges by double clicking on them
 
 ![Example animation](./example.gif)
 

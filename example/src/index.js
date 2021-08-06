@@ -1,4 +1,4 @@
-import { Map, Icon, tileLayer, marker } from 'leaflet';
+import { Map, Icon, tileLayer, marker, geoJSON } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '@bopen/leaflet-area-selection/dist/index.css';
 import { DrawAreaSelection } from '@bopen/leaflet-area-selection';
@@ -39,6 +39,22 @@ const areaSelection = new DrawAreaSelection({
     const preview = document.getElementById('polygon');
     preview.innerText = JSON.stringify(polygon.toGeoJSON(3), undefined, 2);
     preview.scrollTop = preview.scrollHeight;
+  },
+  onPolygonDblClick: (polygon, control, ev) => {
+    // stopPropagation is not working here… we need the hacky way to prevent zoom
+    map.doubleClickZoom.disable();
+    setTimeout(() => {
+      map.doubleClickZoom.enable();
+    }, 100);
+    const geojson = geoJSON(polygon.toGeoJSON(), {
+      style: {
+        opacity: 0.5,
+        fillOpacity: 0.2,
+        color: 'red',
+      },
+    });
+    geojson.addTo(map);
+    control.deactivate();
   },
   position: 'bottomleft',
 });

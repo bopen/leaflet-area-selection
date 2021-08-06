@@ -1,5 +1,5 @@
 import { DomUtil, Control, Util, Point } from 'leaflet';
-import { createPane, PANE_NAME } from './drawing-pane';
+import { createPane, removeEndClickArea, PANE_NAME } from './drawing-pane';
 import { cls, setPosition, CLICK_EVT } from './utils';
 import {
   onActivate,
@@ -16,13 +16,16 @@ export const DrawAreaSelection = Control.extend({
     // activate automatically area selection on plugin load
     active: false,
     // callback called when draw phase is complete and at every polygon adjustement
-    onPolygonReady: (polygon) => {},
+    onPolygonReady: (polygon, control) => {},
     // partially fade the map when draw phase is activated
     fadeOnActivation: true,
+    // callback called when draw phase is complete and double-click is performed on the final polygon
+    onPolygonDblClick: (polygon, control, event) => {},
   },
 
   initialize: function (options = {}) {
     Util.setOptions(this, options);
+    this._map = null;
     // lifecycle phases: one of inactive, draw, adjust
     this.phase = options.active ? 'draw' : 'inactive';
     this.map_moving = false;
@@ -78,7 +81,11 @@ export const DrawAreaSelection = Control.extend({
   },
 
   onPolygonReady: function () {
-    this.options.onPolygonReady(this.polygon);
+    this.options.onPolygonReady(this.polygon, this);
+  },
+
+  onPolygonDblClick: function (ev) {
+    this.options.onPolygonDblClick(this.polygon, this, ev);
   },
 
   setPhase(phase, forceClear = false) {
@@ -162,6 +169,13 @@ export const DrawAreaSelection = Control.extend({
     this.polygon = null;
     this.closeLine && this.closeLine.removeFrom(this._map);
     this.closeLine = null;
+  },
+
+  deactivate: function () {
+    removeEndClickArea(this);
+    this.activateButton.classList.remove('active');
+    this._map.getContainer().classList.remove('drawing-area');
+    this.setPhase('inactive', true);
   },
 });
 
