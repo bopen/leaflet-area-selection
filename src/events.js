@@ -188,6 +188,7 @@ export function onUpdatePolygon() {
       color: enoughPoints ? 'rgb(45, 123, 200)' : 'rgba(220, 53, 69, 0.7)',
       weight: 2,
       ...(!enoughPoints && { dashArray: '5, 10' }),
+      className: 'drawing-area-poligon',
     }
   );
   if (this.polygon) {

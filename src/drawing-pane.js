@@ -29,7 +29,6 @@ export function createPane(map, options) {
     map.fire('as:point-add', event);
   };
   pane.addEventListener(CLICK_EVT, handler);
-  pane.style.zIndex = 550;
 }
 
 export function addEndClickArea(control, [x, y]) {
