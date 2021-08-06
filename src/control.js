@@ -11,6 +11,8 @@ import {
   onUpdatePolygon,
 } from './events';
 
+// import buttonImage from './images/area-icon.png';
+
 export const DrawAreaSelection = Control.extend({
   options: {
     // activate automatically area selection on plugin load
@@ -45,6 +47,7 @@ export const DrawAreaSelection = Control.extend({
   onAdd: function (map) {
     this._container = DomUtil.create('div', cls('leaflet-area-selector-control'));
     this.activateButton = DomUtil.create('button', '', this._container);
+    // this.activateButton.style.backgroundImage = `url('${buttonImage}')`;
     this.activateButton.addEventListener(CLICK_EVT, onActivate.bind(this));
     this.activateButton.addEventListener('dblclick', (event) => {
       event.stopPropagation();

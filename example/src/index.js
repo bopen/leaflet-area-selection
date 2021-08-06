@@ -56,7 +56,7 @@ const areaSelection = new DrawAreaSelection({
     geojson.addTo(map);
     control.deactivate();
   },
-  position: 'bottomleft',
+  position: 'topleft',
 });
 
 map.addControl(areaSelection);
