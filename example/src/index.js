@@ -41,11 +41,6 @@ const areaSelection = new DrawAreaSelection({
     preview.scrollTop = preview.scrollHeight;
   },
   onPolygonDblClick: (polygon, control, ev) => {
-    // stopPropagation is not working here… we need the hacky way to prevent zoom
-    map.doubleClickZoom.disable();
-    setTimeout(() => {
-      map.doubleClickZoom.enable();
-    }, 100);
     const geojson = geoJSON(polygon.toGeoJSON(), {
       style: {
         opacity: 0.5,

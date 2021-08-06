@@ -1,4 +1,4 @@
-import { DivIcon, Marker, Point, Polygon, Polyline } from 'leaflet';
+import { DivIcon, Marker, Point, Polygon, Polyline, DomEvent } from 'leaflet';
 import { cls } from './utils';
 import { addEndClickArea, removeEndClickArea } from './drawing-pane';
 
@@ -191,10 +191,14 @@ export function onUpdatePolygon() {
       className: 'drawing-area-poligon',
     }
   );
+  polygon.on('click', (ev) => {
+    DomEvent.stopPropagation(ev);
+  });
+
   polygon.on('dblclick', (ev) => {
     // Preventing zoom-on-doubleclick is not working. I'll leave hacky workarounds to user's implementation
     // See https://stackoverflow.com/questions/15406537/disable-map-zoom-on-circlemarker-double-click-in-leaflet
-    ev.originalEvent.stopPropagation();
+    DomEvent.stopPropagation(ev);
     this.onPolygonDblClick(ev);
     return false;
   });
