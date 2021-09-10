@@ -37,9 +37,9 @@ The `DrawAreaSelection` can receive a configuration object with followings suppo
 
 - `active` - the plugin starts as active, no need to run it from the button
 - `fadeOnActivation` - when actively drawing a new area the map is partially faded out
-- `onPolygonReady` - callback called every time a new complete polygon is ready.
+- `onPolygonReady` - callback called during the adjustment phase (see below) every time a change is performed to the polygon (vertex moved, added or removed).<br>
   Receives the [Leaflet.Polygon](https://leafletjs.com/reference.html#polygon) and the control instance as arguments.
-- `onPolygonDblClick` - called when performing a double-click on the draw polygon when in the adjustment phase (see below).
+- `onPolygonDblClick` - called when performing a double-click on the draw polygon when in the adjustment phase (see below).<br>
   Receives three arguments: the [Leaflet.Polygon](https://leafletjs.com/reference.html#polygon), the control instance and the event.
 
 # User guide
