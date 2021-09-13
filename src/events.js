@@ -263,18 +263,27 @@ export function onActivate(event) {
   if (!event.isTrusted) {
     return;
   }
-  event.preventDefault();
+  // Let leave to custom callback any call to preventDefault, which will block normal button behaviors
+  // event.preventDefault();
   event.stopPropagation();
   const map = this.getMap();
   event.target.blur();
   // if current state is active, we need to deactivate
   const activeState = this.options.active || this.phase === 'adjust';
   if (activeState) {
-    this.deactivate();
+    // Calling user's specific event handler
+    this.options.onButtonDeactivate(this.polygon, this, event);
+    if (!event.defaultPrevented) {
+      this.deactivate();
+    }
   } else {
-    this.activateButton.classList.add('active');
-    map.getContainer().classList.add('drawing-area');
-    this.setPhase('draw', true);
+    // Calling user's specific event handler
+    this.options.onButtonActivate(this, event);
+    if (!event.defaultPrevented) {
+      this.activateButton.classList.add('active');
+      map.getContainer().classList.add('drawing-area');
+      this.setPhase('draw', true);
+    }
   }
 }
 

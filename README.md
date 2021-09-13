@@ -41,6 +41,11 @@ The `DrawAreaSelection` can receive a configuration object with followings suppo
   Receives the [Leaflet.Polygon](https://leafletjs.com/reference.html#polygon) and the control instance as arguments.
 - `onPolygonDblClick` - called when performing a double-click on the draw polygon when in the adjustment phase (see below).<br>
   Receives three arguments: the [Leaflet.Polygon](https://leafletjs.com/reference.html#polygon), the control instance and the event.
+- `onButtonActivate` - called when user clicks on the button to enable draw a polygon.<br>
+  Receives two arguments: the control instance and the event. Calling `preventDefault` on the event will abort the activation.
+- `onButtonDeactivate` - called when user clicks on the button to stop drawing the polygon.<br>
+  Receives three arguments: the [Leaflet.Polygon](https://leafletjs.com/reference.html#polygon), the control instance and the event.
+  Calling `preventDefault` on the event will abort the deactivation.
 
 # User guide
 

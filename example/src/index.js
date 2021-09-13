@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Map, Icon, tileLayer, marker, geoJSON } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '@bopen/leaflet-area-selection/dist/index.css';
@@ -37,7 +38,7 @@ marker(center).addTo(map).bindPopup(popup);
 const areaSelection = new DrawAreaSelection({
   onPolygonReady: (polygon) => {
     const preview = document.getElementById('polygon');
-    preview.innerText = JSON.stringify(polygon.toGeoJSON(3), undefined, 2);
+    preview.textContent = JSON.stringify(polygon.toGeoJSON(3), undefined, 2);
     preview.scrollTop = preview.scrollHeight;
   },
   onPolygonDblClick: (polygon, control, ev) => {
@@ -50,6 +51,18 @@ const areaSelection = new DrawAreaSelection({
     });
     geojson.addTo(map);
     control.deactivate();
+  },
+  onButtonActivate: () => {
+    const preview = document.getElementById('polygon');
+    preview.textContent = 'Please, draw your polygon';
+    console.log('Please, draw your polygon');
+  },
+  onButtonDeactivate: (polygon) => {
+    const preview = document.getElementById('polygon');
+    console.log('Deactivated');
+    preview.textContent = `Deactivated! Current polygon is:
+
+${polygon ? JSON.stringify(polygon.toGeoJSON(3), undefined, 2) : 'null'}`;
   },
   position: 'topleft',
 });

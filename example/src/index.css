@@ -18,7 +18,7 @@ pre {
 
 .show-selection {
   margin: 5px 10px;
-  padding: 5px 0;
+  padding: 5px 10px;
   max-height: 30vh;
   overflow-y: auto;
   box-shadow: 3px 3px 6px -1px #303030;

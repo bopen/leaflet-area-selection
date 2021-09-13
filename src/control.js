@@ -17,12 +17,17 @@ export const DrawAreaSelection = Control.extend({
   options: {
     // activate automatically area selection on plugin load
     active: false,
-    // callback called when draw phase is complete and at every polygon adjustement
-    onPolygonReady: (polygon, control) => {},
     // partially fade the map when draw phase is activated
     fadeOnActivation: true,
+    /* ******* callbacks ******* */
+    // callback called when draw phase is complete and at every polygon adjustement
+    onPolygonReady: (polygon, control) => {},
     // callback called when draw phase is complete and double-click is performed on the final polygon
     onPolygonDblClick: (polygon, control, event) => {},
+    // callback called when user press the activation button
+    onButtonActivate: (control, event) => {},
+    // callback called when user press the button to deactivate (not called when the plugin deactivate itself automatically)
+    onButtonDeactivate: (polygon, control, event) => {},
   },
 
   initialize: function (options = {}) {
