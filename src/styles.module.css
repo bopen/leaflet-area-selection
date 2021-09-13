@@ -108,9 +108,36 @@
 
 .areaSelectMarker:global.start-marker {
   background-color: #28a745;
+  animation: endpath-pulse 1.5s infinite;
 }
 
 .areaSelectMarker:global.invalid {
   border-color: rgb(220, 53, 69);
   background-color: rgba(220, 53, 69, 0.7);
+}
+
+:global .leaflet-overlay-pane :global .areaCloseLine {
+  stroke-dasharray: 20;
+  animation: closeline-dash 10s linear;
+  animation-iteration-count: infinite;
+}
+
+:global @keyframes closeline-dash {
+  to {
+    stroke-dashoffset: 1000;
+  }
+}
+
+:global @keyframes endpath-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px rgba(0, 0, 0, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
 }

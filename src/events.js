@@ -135,6 +135,7 @@ export function onAddMarker({ index = null, ...rest }) {
         {
           weight: 3,
           color: '#c0c0c0',
+          className: 'areaCloseLine',
         }
       );
       map.addLayer(this.closeLine);
