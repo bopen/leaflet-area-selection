@@ -1,6 +1,11 @@
 {
   "parser": "babel-eslint",
-  "extends": ["standard", "plugin:prettier/recommended", "prettier/standard"],
+  "extends": [
+    "standard",
+    "plugin:prettier/recommended",
+    "prettier/standard",
+    "plugin:cypress/recommended"
+  ],
   "env": {
     "browser": true
   },

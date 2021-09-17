@@ -53,6 +53,7 @@ export const DrawAreaSelection = Control.extend({
     this._container = DomUtil.create('div', cls('leaflet-area-selector-control'));
     this.activateButton = DomUtil.create('button', '', this._container);
     // this.activateButton.style.backgroundImage = `url('${buttonImage}')`;
+    this.activateButton.setAttribute('aria-label', 'Draw shape');
     this.activateButton.addEventListener(CLICK_EVT, onActivate.bind(this));
     this.activateButton.addEventListener('dblclick', (event) => {
       event.stopPropagation();
