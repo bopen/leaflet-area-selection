@@ -31,7 +31,34 @@ describe('Drawing shapes', () => {
     cy.get('.area-select-ghost-marker').should('have.length', 4);
   });
 
-  it('Adjusting a shape', () => {
+  it('Adjusting polygon', () => {
+    cy.visit('/');
+
+    cy.window().its('MAP_LOADED').should('eq', true);
+
+    // Clicking the activation button
+    cy.get('[aria-label="Draw shape"]').click();
+
+    cy.get('#root').click(450, 150).click(550, 150).click(550, 350).click(420, 300);
+    cy.get('.leaflet-area-draw-selection-pane .end-selection-area').click();
+
+    // Storing current polygon
+    cy.document().then((doc) => {
+      const polygon = doc.querySelector('#polygon').innerText;
+
+      cy.get('.area-select-marker').should('have.length', 4);
+      cy.dragAndDrop('.leaflet-marker-draggable:eq(0)', 320, 150);
+
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(100)
+        .get('#polygon')
+        .then(($polygon) => {
+          cy.wrap($polygon.get(0).innerText).should('not.equal', polygon);
+        });
+    });
+  });
+
+  it('Adding vertex', () => {
     cy.visit('/');
 
     cy.window().its('MAP_LOADED').should('eq', true);

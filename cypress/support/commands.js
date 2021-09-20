@@ -43,7 +43,6 @@ Cypress.Commands.add('dragAndDrop', (subject, x, y) => {
     const coordsDrag = subject[0].getBoundingClientRect();
     const centerX = coordsDrag.x + coordsDrag.width / 2;
     const centerY = coordsDrag.y + coordsDrag.height / 2;
-    console.log(subject[0], coordsDrag);
     cy.wrap(subject)
       .trigger('dragstart')
       .trigger('mousedown', {
@@ -57,10 +56,6 @@ Cypress.Commands.add('dragAndDrop', (subject, x, y) => {
         button: BUTTON_INDEX,
         clientX: centerX + SLOPPY_CLICK_THRESHOLD,
         clientY: centerY + SLOPPY_CLICK_THRESHOLD,
-        pageX: centerX + SLOPPY_CLICK_THRESHOLD,
-        pageY: centerY + SLOPPY_CLICK_THRESHOLD,
-        screenX: centerX + SLOPPY_CLICK_THRESHOLD,
-        screenY: centerY + SLOPPY_CLICK_THRESHOLD,
         force: true,
         which: 1,
       });
@@ -69,10 +64,6 @@ Cypress.Commands.add('dragAndDrop', (subject, x, y) => {
         button: BUTTON_INDEX,
         clientX: x,
         clientY: y,
-        pageX: x,
-        pageY: y,
-        screenX: x,
-        screenY: y,
         force: true,
         which: 1,
       })
