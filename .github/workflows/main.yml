@@ -1,0 +1,65 @@
+name: Cypress E2E Coverage
+
+on: [push]
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    container: cypress/browsers:node12.18.3-chrome87-ff82
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install
+        run: npm install
+
+      - name: Install example
+        working-directory: example
+        run: npm install
+
+      - name: Cypress install
+        uses: cypress-io/github-action@v2
+        with:
+          # Disable running of tests within install job
+          runTests: false
+          build: npm run build
+
+      - name: Save dist folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          if-no-files-found: error
+          path: dist
+
+  cypress-run:
+    runs-on: ubuntu-latest
+    container: cypress/browsers:node12.18.3-chrome87-ff82
+    needs: install
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download the dist folders
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+      - name: Cypress run Chrome
+        uses: cypress-io/github-action@v2
+        with:
+          build: npm run build
+          install: false
+          browser: chrome
+          start: make
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
+
+      - name: Cypress run Firefox
+        uses: cypress-io/github-action@v2
+        with:
+          install: false
+          browser: firefox
+          start: make
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
