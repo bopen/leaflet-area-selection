@@ -8,6 +8,10 @@ check_version:
 
 requirements: check_version
 
+install:
+	@npm install
+	@cd example && npm install
+
 start: requirements
 	@npm start &
 	@cd example && npm start
