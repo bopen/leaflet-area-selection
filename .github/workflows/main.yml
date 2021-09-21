@@ -24,11 +24,11 @@ jobs:
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 120
 
-      - name: Cypress run Firefox
-        uses: cypress-io/github-action@v2
-        with:
-          build: npm run build
-          browser: firefox
-          start: make
-          wait-on: 'http://localhost:3000'
-          wait-on-timeout: 120
+      # - name: Cypress run Firefox
+      #   uses: cypress-io/github-action@v2
+      #   with:
+      #     build: npm run build
+      #     browser: firefox
+      #     start: make
+      #     wait-on: 'http://localhost:3000'
+      #     wait-on-timeout: 120
