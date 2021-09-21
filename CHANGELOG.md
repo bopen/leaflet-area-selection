@@ -1,5 +1,10 @@
 ## Changelog
 
+### 0.5.0
+
+- Added `onButtonActivate`
+- Added `onButtonDeactivate`
+
 ### 0.4.0
 
 - Do not ever ever ever use leaflet-src.esm. _Never_.
