@@ -26,7 +26,11 @@ const map = new Map('root', {
 tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution:
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-}).addTo(map);
+})
+  .on('load', () => {
+    window.MAP_LOADED = true;
+  })
+  .addTo(map);
 
 const popup = document.createElement('div');
 popup.innerHTML = `<div style="text-align: center; font-size: 120%">B-Open</div>

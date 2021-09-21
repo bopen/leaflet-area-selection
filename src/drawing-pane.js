@@ -1,5 +1,5 @@
 import { DomUtil, Point } from 'leaflet';
-import { cls, insertAfter, setPosition, CLICK_EVT } from './utils';
+import { cls, insertAfter, setPosition, CLICK_EVT, isTrustedEvent } from './utils';
 
 export const PANE_NAME = 'area-draw-selection';
 
@@ -22,7 +22,7 @@ export function createPane(map, options) {
   const pane = map.createPane(PANE_NAME, overlayPanesContainer);
   const handler = (event) => {
     // Non-sense, but required on Safari. Probably related to https://github.com/Leaflet/Leaflet/issues/7255
-    if (!event.isTrusted) {
+    if (!isTrustedEvent(event)) {
       return;
     }
     event.stopPropagation();
@@ -39,7 +39,7 @@ export function addEndClickArea(control, [x, y]) {
   marker.setAttribute('role', 'button');
   const handler = (event) => {
     // Non-sense, but required on Safari. Probably related to https://github.com/Leaflet/Leaflet/issues/7255
-    if (!event.isTrusted) {
+    if (!isTrustedEvent(event)) {
       return;
     }
     event.stopPropagation();

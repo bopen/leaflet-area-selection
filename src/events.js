@@ -1,5 +1,5 @@
 import { DivIcon, Marker, Point, Polygon, Polyline, DomEvent } from 'leaflet';
-import { cls } from './utils';
+import { cls, isTrustedEvent } from './utils';
 import { addEndClickArea, removeEndClickArea } from './drawing-pane';
 
 function doNothingHandler(event) {
@@ -261,7 +261,7 @@ export function onPolygonCreationEnd() {
 
 export function onActivate(event) {
   // Non-sense, but required on Safari. Probably related to https://github.com/Leaflet/Leaflet/issues/7255
-  if (!event.isTrusted) {
+  if (!isTrustedEvent(event)) {
     return;
   }
   // Let leave to custom callback any call to preventDefault, which will block normal button behaviors
