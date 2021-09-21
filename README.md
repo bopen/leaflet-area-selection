@@ -4,7 +4,7 @@
 
 [![NPM](https://img.shields.io/npm/v/@bopen/leaflet-area-selection.svg)](https://www.npmjs.com/package/@bopen/leaflet-area-selection)
 
-![CI](https://github.com/bopen/leaflet-area-selection/actions/workflows/main.yml/badge.svg)
+[![CI](https://github.com/bopen/leaflet-area-selection/actions/workflows/main.yml/badge.svg)](https://github.com/bopen/leaflet-area-selection/actions/workflows/main.yml)
 
 The primary target of this plugin is to obtain a **customizable selected area** while keeping **high usability**.
 
