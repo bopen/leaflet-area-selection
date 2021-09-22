@@ -16,7 +16,6 @@ export function onAddPoint(event) {
   if (this.map_moving) {
     return;
   }
-  const { index = null } = event;
   let { clientX, clientY } = event;
   // Touch device
   if (clientX === undefined && clientY === undefined) {
@@ -24,7 +23,18 @@ export function onAddPoint(event) {
     clientX = touch.clientX;
     clientY = touch.clientY;
   }
+  // We were drawing a rect, so we don't perform the canonical action
+  if (this.rect_drawing) {
+    this.rect_drawing = false;
+    this.rect_draw_end = [clientX, clientY];
+    return;
+  }
   const map = this.getMap();
+  // Enable dragging (in case it was enabled before movestart)
+  if (this._drag_status) {
+    map.dragging.enable();
+  }
+  const { index = null } = event;
   const container = map.getContainer();
   const bbox = container.getBoundingClientRect();
   const x = clientX - bbox.left;
@@ -281,6 +291,9 @@ export function onActivate(event) {
     // Calling user's specific event handler
     this.options.onButtonActivate(this, event);
     if (!event.defaultPrevented) {
+      // When activating the plugin we'll disable dragging temporarely
+      this._drag_status = this._map.dragging._enabled;
+      this._map.dragging.disable();
       this.activateButton.classList.add('active');
       map.getContainer().classList.add('drawing-area');
       this.setPhase('draw', true);
@@ -359,4 +372,14 @@ export function onGhostMarkerDragEnd(index) {
     };
     map.fire('as:point-add', fakeEvent);
   };
+}
+
+export function onMouseMove(event) {
+  if (!this.map_moving && this.markers.length === 0 && event.which !== 0) {
+    if (!this.rect_drawing) {
+      this.rect_draw_start = [event.clientX, event.clientY];
+    }
+    this.rect_drawing = true;
+    console.log('Creating a square');
+  }
 }

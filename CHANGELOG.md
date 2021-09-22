@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.6.0
+
+- Added square selection during drawing phase
+
 ### 0.5.0
 
 - Added `onButtonActivate`

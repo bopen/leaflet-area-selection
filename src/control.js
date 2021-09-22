@@ -5,6 +5,7 @@ import {
   onActivate,
   onAddMarker,
   onAddPoint,
+  onMouseMove,
   onPolygonCreationEnd,
   onRemoveMarker,
   onUpdateGhostPoints,
@@ -36,6 +37,10 @@ export const DrawAreaSelection = Control.extend({
     // lifecycle phases: one of inactive, draw, adjust
     this.phase = options.active ? 'draw' : 'inactive';
     this.map_moving = false;
+    // map if in phase of drawing a rectangle
+    this.rect_drawing = false;
+    // where user started to draw a rect
+    this.rect_drawing = null;
     // edge markers used for drawing, next dragging the polygon
     this.markers = [];
     // fake markers used for adding rings to the polygon
@@ -45,8 +50,9 @@ export const DrawAreaSelection = Control.extend({
     // on drawing phase: a line from the last drawn point to the first ones
     this.closeLine = null;
 
-    this._mapMoveStart = this.mapMoveStart.bind(this);
-    this._mapMoveEnd = this.mapMoveEnd.bind(this);
+    this._mapMoveStart = this._mapMoveStart.bind(this);
+    this._mapMoveEnd = this._mapMoveEnd.bind(this);
+    this._handleMouseMove = this._handleMouseMove.bind(this);
   },
 
   onAdd: function (map) {
@@ -63,6 +69,7 @@ export const DrawAreaSelection = Control.extend({
       : this.activateButton.classList.remove('active');
     this._map = map;
     createPane(map, this.options);
+    map.getContainer().addEventListener('mousemove', this._handleMouseMove);
     map.on('movestart', this._mapMoveStart);
     map.on('moveend', this._mapMoveEnd);
     map.on('as:point-add', onAddPoint.bind(this));
@@ -75,6 +82,7 @@ export const DrawAreaSelection = Control.extend({
   },
 
   onRemove: function (map) {
+    map.getContainer().removeEventListener('mousemove', this._handleMouseMove);
     map.off('movestart', this._mapMoveStart);
     map.off('moveend', this._mapMoveEnd);
     map.off('as:point-add');
@@ -113,15 +121,21 @@ export const DrawAreaSelection = Control.extend({
       : container.classList.add('inactive');
   },
 
-  mapMoveStart: function () {
+  _mapMoveStart: function () {
+    if (!this.options.active) {
+      return;
+    }
     this.map_moving = true;
   },
 
-  mapMoveEnd: function (event) {
+  _mapMoveEnd: function () {
+    if (!this.options.active) {
+      return;
+    }
+    const map = this._map;
     requestAnimationFrame(() => {
       this.map_moving = false;
     });
-    const map = this._map;
     // Re-position end of selection HTML element
     const pane = map.getPane(PANE_NAME);
     const touchMarker = pane.querySelector('.end-selection-area');
@@ -185,6 +199,13 @@ export const DrawAreaSelection = Control.extend({
     this.activateButton.classList.remove('active');
     this._map.getContainer().classList.remove('drawing-area');
     this.setPhase('inactive', true);
+  },
+
+  _handleMouseMove: function (event) {
+    if (!this.options.active) {
+      return;
+    }
+    onMouseMove.bind(this)(event);
   },
 });
 
