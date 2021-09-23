@@ -59,7 +59,7 @@ Clicks on the map will trigger the creation of a vertex for the polygon.
 User can continue adding vertexes to the polygon (min length is 3) until the whole required area is covered.<br>
 To complete the polygon drawing phase user must click on the first (green) point created.
 
-Alternatively: on the first click you can drag&drop and directly create a square shape.
+Alternatively: on the first click you can drag&drop and directly create a square shape (_note_: this method is not currently working on mobile!).
 
 ### Fix and change polygon shape
 
