@@ -1,5 +1,5 @@
 import { DivIcon, Marker, Point, Polygon, Polyline, DomEvent, LayerGroup } from 'leaflet';
-import { cls, isTrustedEvent } from './utils';
+import { cls, isTrustedEvent, CLICK_EVT } from './utils';
 import { addEndClickArea, removeEndClickArea } from './drawing-pane';
 
 function doNothingHandler(event) {
@@ -29,10 +29,7 @@ export function onAddPoint(event) {
     map.fire('as:dragging-rect-end');
     return;
   }
-  // (re)enable dragging (in case it was enabled before movestart)
-  if (this._dragStatus) {
-    map.dragging.enable();
-  }
+
   const { index = null } = event;
   const container = map.getContainer();
   const bbox = container.getBoundingClientRect();
@@ -77,7 +74,7 @@ export function onAddPoint(event) {
       });
     })(this.markers.length)
   );
-  marker.on('click', doNothingHandler);
+  marker.on(CLICK_EVT, doNothingHandler);
   marker.addTo(map);
   map.fire('as:marker-add', newEdge);
   // If this point as not been added at the end, we need to update even handlers HOC params to update index
@@ -85,8 +82,8 @@ export function onAddPoint(event) {
     for (let i = index + 1; i < this.markers.length; i++) {
       this.markers[i].marker.off('drag');
       this.markers[i].marker.on('drag', _onMarkerDrag(i));
-      this.markers[i].marker.off('click');
-      this.markers[i].marker.on('click', doNothingHandler);
+      this.markers[i].marker.off(CLICK_EVT);
+      this.markers[i].marker.on(CLICK_EVT, doNothingHandler);
       this.markers[i].marker.off('dblclick');
       this.markers[i].marker.on('dblclick', (event) => {
         map.fire('as:marker-remove', {
@@ -168,8 +165,8 @@ export function onRemoveMarker({ index = 0 }) {
   for (let i = index; i < this.markers.length; i++) {
     this.markers[i].marker.off('drag');
     this.markers[i].marker.on('drag', onMarkerDrag.bind(this)(i));
-    this.markers[i].marker.off('click');
-    this.markers[i].marker.on('click', doNothingHandler);
+    this.markers[i].marker.off(CLICK_EVT);
+    this.markers[i].marker.on(CLICK_EVT, doNothingHandler);
     this.markers[i].marker.off('dblclick');
     this.markers[i].marker.on('dblclick', (event) => {
       event.originalEvent.stopPropagation();
@@ -201,7 +198,7 @@ export function onUpdatePolygon() {
       className: 'drawing-area-poligon',
     }
   );
-  polygon.on('click', (ev) => {
+  polygon.on(CLICK_EVT, (ev) => {
     DomEvent.stopPropagation(ev);
   });
 
@@ -245,10 +242,10 @@ export function onUpdateGhostPoints() {
         point,
         marker,
       };
-      marker.on('click', doNothingHandler);
+      marker.on(CLICK_EVT, doNothingHandler);
       marker.on('dblclick', doNothingHandler);
-      marker.on('drag', onGhostMarkerDrag.bind(this)(ghostMarkers.length));
       marker.on('dragstart', onGhostMarkerDragStart.bind(this)());
+      marker.on('drag', onGhostMarkerDrag.bind(this)(ghostMarkers.length));
       marker.on('dragend', onGhostMarkerDragEnd.bind(this)(ghostMarkers.length));
       ghostMarkers.push(newGhostMarker);
       marker.addTo(map);
@@ -258,6 +255,8 @@ export function onUpdateGhostPoints() {
 
 export function onPolygonCreationEnd() {
   const map = this.getMap();
+  // We'll forcly enable the drag on the map (which will be just of the draw pane)
+  map.dragging.enable();
   map.removeLayer(this.closeLine);
   this.closeLine = null;
   // Remove style for the final marker icon
@@ -268,19 +267,30 @@ export function onPolygonCreationEnd() {
   removeEndClickArea(this);
 }
 
+/**
+ * Plugin activation (button pressed)
+ */
 export function onActivate(event) {
   // Non-sense, but required on Safari. Probably related to https://github.com/Leaflet/Leaflet/issues/7255
   if (!isTrustedEvent(event)) {
     return;
   }
+  const map = this.getMap();
+  // storing if the dragging is enabled in the map
+  this._dragStatus = map.dragging._enabled;
+
   // Let leave to custom callback any call to preventDefault, which will block normal button behaviors
   // event.preventDefault();
   event.stopPropagation();
-  const map = this.getMap();
   event.target.blur();
   // if current state is active, we need to deactivate
   const activeState = this.options.active || this.phase === 'adjust';
   if (activeState) {
+    // Disable dragging if it was enabled before the activation
+    if (!this._dragStatus) {
+      map.dragging.disable();
+    }
+
     // Calling user's specific event handler
     this.options.onButtonDeactivate(this.polygon, this, event);
     if (!event.defaultPrevented) {
@@ -290,9 +300,8 @@ export function onActivate(event) {
     // Calling user's specific event handler
     this.options.onButtonActivate(this, event);
     if (!event.defaultPrevented) {
-      // When activating the plugin we'll disable dragging temporarely
-      this._dragStatus = this._map.dragging._enabled;
-      this._map.dragging.disable();
+      // When activating the plugin we'll disable dragging temporarely (in case we are drawing a rect)
+      map.dragging.disable();
       this.activateButton.classList.add('active');
       map.getContainer().classList.add('drawing-area');
       this.setPhase('draw', true);

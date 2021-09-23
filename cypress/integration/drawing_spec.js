@@ -77,7 +77,7 @@ describe('Drawing shapes', () => {
 });
 
 describe('Rect drawing', () => {
-  it.only('Drawing a rect', () => {
+  it('Drawing a rect', () => {
     cy.visit('/');
 
     cy.window().its('MAP_LOADED').should('eq', true);
@@ -108,7 +108,6 @@ describe('Rect drawing', () => {
 
     // Can add vertex
     cy.dragAndDropElement('.area-select-ghost-marker:eq(0)', 420, 220);
-
     cy.get('.area-select-marker').should('have.length', 5);
     cy.get('.area-select-ghost-marker').should('have.length', 5);
   });

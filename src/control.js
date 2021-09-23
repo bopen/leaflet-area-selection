@@ -1,6 +1,6 @@
 import { DomUtil, Control, Util, Point } from 'leaflet';
 import { createPane, removeEndClickArea, PANE_NAME } from './drawing-pane';
-import { cls, setPosition, CLICK_EVT } from './utils';
+import { cls, setPosition } from './utils';
 import {
   onActivate,
   onAddMarker,
@@ -64,7 +64,7 @@ export const DrawAreaSelection = Control.extend({
     this.activateButton = DomUtil.create('button', '', this._container);
     // this.activateButton.style.backgroundImage = `url('${buttonImage}')`;
     this.activateButton.setAttribute('aria-label', 'Draw shape');
-    this.activateButton.addEventListener(CLICK_EVT, onActivate.bind(this));
+    this.activateButton.addEventListener('click', onActivate.bind(this));
     this.activateButton.addEventListener('dblclick', (event) => {
       event.stopPropagation();
     });
