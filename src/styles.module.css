@@ -116,8 +116,14 @@
   background-color: rgba(220, 53, 69, 0.7);
 }
 
-:global .leaflet-overlay-pane :global .areaCloseLine {
+:global .leaflet-overlay-pane :global path.areaCloseLine {
   stroke-dasharray: 20;
+  animation: closeline-dash 10s linear;
+  animation-iteration-count: infinite;
+}
+
+:global .leaflet-overlay-pane :global path.rect-progress-line {
+  stroke-dasharray: 10;
   animation: closeline-dash 10s linear;
   animation-iteration-count: infinite;
 }

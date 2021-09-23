@@ -1,4 +1,4 @@
-import { DivIcon, Marker, Point, Polygon, Polyline, DomEvent } from 'leaflet';
+import { DivIcon, Marker, Point, Polygon, Polyline, DomEvent, LayerGroup } from 'leaflet';
 import { cls, isTrustedEvent } from './utils';
 import { addEndClickArea, removeEndClickArea } from './drawing-pane';
 
@@ -13,9 +13,10 @@ function doNothingHandler(event) {
  */
 export function onAddPoint(event) {
   // Default behavior while dragging
-  if (this.map_moving) {
+  if (this.mapMoving) {
     return;
   }
+  const map = this.getMap();
   let { clientX, clientY } = event;
   // Touch device
   if (clientX === undefined && clientY === undefined) {
@@ -23,15 +24,13 @@ export function onAddPoint(event) {
     clientX = touch.clientX;
     clientY = touch.clientY;
   }
-  // We were drawing a rect, so we don't perform the canonical action
-  if (this.rect_drawing) {
-    this.rect_drawing = false;
-    this.rect_draw_end = [clientX, clientY];
+  // We were drawing a rect, so we don't perform the canonical action ans we stop here
+  if (this.rectDrawing) {
+    map.fire('as:dragging-rect-end');
     return;
   }
-  const map = this.getMap();
-  // Enable dragging (in case it was enabled before movestart)
-  if (this._drag_status) {
+  // (re)enable dragging (in case it was enabled before movestart)
+  if (this._dragStatus) {
     map.dragging.enable();
   }
   const { index = null } = event;
@@ -292,7 +291,7 @@ export function onActivate(event) {
     this.options.onButtonActivate(this, event);
     if (!event.defaultPrevented) {
       // When activating the plugin we'll disable dragging temporarely
-      this._drag_status = this._map.dragging._enabled;
+      this._dragStatus = this._map.dragging._enabled;
       this._map.dragging.disable();
       this.activateButton.classList.add('active');
       map.getContainer().classList.add('drawing-area');
@@ -375,11 +374,53 @@ export function onGhostMarkerDragEnd(index) {
 }
 
 export function onMouseMove(event) {
-  if (!this.map_moving && this.markers.length === 0 && event.which !== 0) {
-    if (!this.rect_drawing) {
-      this.rect_draw_start = [event.clientX, event.clientY];
+  if (!this.mapMoving && this.markers.length === 0 && event.which !== 0 && event.buttons === 1) {
+    const map = this.getMap();
+    if (!this.rectDrawing) {
+      this.rectDrawStart = [event.clientX, event.clientY];
+      const props = {
+        weight: 2,
+        color: '#8B4513',
+        className: 'rect-progress-line',
+        opacity: 0.6,
+      };
+      this.draggingRect = new LayerGroup()
+        .addLayer(new Polyline([], props))
+        .addLayer(new Polyline([], props))
+        .addTo(map);
+      this.rectDrawing = true;
+      return;
     }
-    this.rect_drawing = true;
-    console.log('Creating a square');
+    this.rectDrawEnd = [event.clientX, event.clientY];
+    const pointA = [this.rectDrawStart[0], event.clientY];
+    const pointB = [event.clientX, this.rectDrawStart[1]];
+
+    const layers = this.draggingRect.getLayers();
+    layers[0].setLatLngs([
+      map.mouseEventToLatLng({ clientX: this.rectDrawEnd[0], clientY: this.rectDrawEnd[1] }),
+      map.mouseEventToLatLng({ clientX: pointA[0], clientY: pointA[1] }),
+      map.mouseEventToLatLng({ clientX: this.rectDrawStart[0], clientY: this.rectDrawStart[1] }),
+    ]);
+    layers[1].setLatLngs([
+      map.mouseEventToLatLng({ clientX: this.rectDrawEnd[0], clientY: this.rectDrawEnd[1] }),
+      map.mouseEventToLatLng({ clientX: pointB[0], clientY: pointB[1] }),
+      map.mouseEventToLatLng({ clientX: this.rectDrawStart[0], clientY: this.rectDrawStart[1] }),
+    ]);
   }
+}
+
+export function onDraggingRectEnd() {
+  this.rectDrawing = false;
+  const vertex1 = { clientX: this.rectDrawStart[0], clientY: this.rectDrawStart[1] };
+  const vertex2 = { clientX: this.rectDrawEnd[0], clientY: this.rectDrawStart[1] };
+  const vertex3 = { clientX: this.rectDrawEnd[0], clientY: this.rectDrawEnd[1] };
+  const vertex4 = { clientX: this.rectDrawStart[0], clientY: this.rectDrawEnd[1] };
+  onAddPoint.bind(this)(vertex1);
+  onAddPoint.bind(this)(vertex2);
+  onAddPoint.bind(this)(vertex3);
+  onAddPoint.bind(this)(vertex4);
+  this._map.fire('as:creation-end');
+  this.rectDrawStart = null;
+  this.rectDrawEnd = null;
+  this.draggingRect.removeFrom(this._map);
 }

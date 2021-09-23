@@ -5,6 +5,7 @@ import {
   onActivate,
   onAddMarker,
   onAddPoint,
+  onDraggingRectEnd,
   onMouseMove,
   onPolygonCreationEnd,
   onRemoveMarker,
@@ -36,11 +37,14 @@ export const DrawAreaSelection = Control.extend({
     this._map = null;
     // lifecycle phases: one of inactive, draw, adjust
     this.phase = options.active ? 'draw' : 'inactive';
-    this.map_moving = false;
+    this.mapMoving = false;
     // map if in phase of drawing a rectangle
-    this.rect_drawing = false;
+    this.rectDrawing = false;
     // where user started to draw a rect
-    this.rect_drawing = null;
+    this.rectDrawStart = null;
+    this.rectDrawEnd = null;
+    // the dragging rect, composed by two lines
+    this.draggingRect = null;
     // edge markers used for drawing, next dragging the polygon
     this.markers = [];
     // fake markers used for adding rings to the polygon
@@ -78,6 +82,7 @@ export const DrawAreaSelection = Control.extend({
     map.on('as:creation-end', onPolygonCreationEnd.bind(this));
     map.on('as:update-polygon', onUpdatePolygon.bind(this));
     map.on('as:update-ghost-points', onUpdateGhostPoints.bind(this));
+    map.on('as:dragging-rect-end', onDraggingRectEnd.bind(this));
     return this._container;
   },
 
@@ -91,6 +96,7 @@ export const DrawAreaSelection = Control.extend({
     map.off('as:creation-end');
     map.off('as:update-polygon');
     map.off('as:update-ghost-points');
+    map.off('as:dragging-rect-end');
   },
 
   getMap: function () {
@@ -125,7 +131,7 @@ export const DrawAreaSelection = Control.extend({
     if (!this.options.active) {
       return;
     }
-    this.map_moving = true;
+    this.mapMoving = true;
   },
 
   _mapMoveEnd: function () {
@@ -134,7 +140,7 @@ export const DrawAreaSelection = Control.extend({
     }
     const map = this._map;
     requestAnimationFrame(() => {
-      this.map_moving = false;
+      this.mapMoving = false;
     });
     // Re-position end of selection HTML element
     const pane = map.getPane(PANE_NAME);
