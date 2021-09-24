@@ -1,10 +1,12 @@
 import { DomUtil, Control, Util, Point } from 'leaflet';
 import { createPane, removeEndClickArea, PANE_NAME } from './drawing-pane';
-import { cls, setPosition, CLICK_EVT } from './utils';
+import { cls, setPosition } from './utils';
 import {
   onActivate,
   onAddMarker,
   onAddPoint,
+  onDraggingRectEnd,
+  onMouseMove,
   onPolygonCreationEnd,
   onRemoveMarker,
   onUpdateGhostPoints,
@@ -35,7 +37,14 @@ export const DrawAreaSelection = Control.extend({
     this._map = null;
     // lifecycle phases: one of inactive, draw, adjust
     this.phase = options.active ? 'draw' : 'inactive';
-    this.map_moving = false;
+    this.mapMoving = false;
+    // map if in phase of drawing a rectangle
+    this.rectDrawing = false;
+    // where user started to draw a rect
+    this.rectDrawStart = null;
+    this.rectDrawEnd = null;
+    // the dragging rect, composed by two lines
+    this.draggingRect = null;
     // edge markers used for drawing, next dragging the polygon
     this.markers = [];
     // fake markers used for adding rings to the polygon
@@ -45,8 +54,9 @@ export const DrawAreaSelection = Control.extend({
     // on drawing phase: a line from the last drawn point to the first ones
     this.closeLine = null;
 
-    this._mapMoveStart = this.mapMoveStart.bind(this);
-    this._mapMoveEnd = this.mapMoveEnd.bind(this);
+    this._mapMoveStart = this._mapMoveStart.bind(this);
+    this._mapMoveEnd = this._mapMoveEnd.bind(this);
+    this._handleMouseMove = this._handleMouseMove.bind(this);
   },
 
   onAdd: function (map) {
@@ -54,7 +64,7 @@ export const DrawAreaSelection = Control.extend({
     this.activateButton = DomUtil.create('button', '', this._container);
     // this.activateButton.style.backgroundImage = `url('${buttonImage}')`;
     this.activateButton.setAttribute('aria-label', 'Draw shape');
-    this.activateButton.addEventListener(CLICK_EVT, onActivate.bind(this));
+    this.activateButton.addEventListener('click', onActivate.bind(this));
     this.activateButton.addEventListener('dblclick', (event) => {
       event.stopPropagation();
     });
@@ -63,6 +73,7 @@ export const DrawAreaSelection = Control.extend({
       : this.activateButton.classList.remove('active');
     this._map = map;
     createPane(map, this.options);
+    map.getContainer().addEventListener('mousemove', this._handleMouseMove);
     map.on('movestart', this._mapMoveStart);
     map.on('moveend', this._mapMoveEnd);
     map.on('as:point-add', onAddPoint.bind(this));
@@ -71,10 +82,12 @@ export const DrawAreaSelection = Control.extend({
     map.on('as:creation-end', onPolygonCreationEnd.bind(this));
     map.on('as:update-polygon', onUpdatePolygon.bind(this));
     map.on('as:update-ghost-points', onUpdateGhostPoints.bind(this));
+    map.on('as:dragging-rect-end', onDraggingRectEnd.bind(this));
     return this._container;
   },
 
   onRemove: function (map) {
+    map.getContainer().removeEventListener('mousemove', this._handleMouseMove);
     map.off('movestart', this._mapMoveStart);
     map.off('moveend', this._mapMoveEnd);
     map.off('as:point-add');
@@ -83,6 +96,7 @@ export const DrawAreaSelection = Control.extend({
     map.off('as:creation-end');
     map.off('as:update-polygon');
     map.off('as:update-ghost-points');
+    map.off('as:dragging-rect-end');
   },
 
   getMap: function () {
@@ -113,15 +127,21 @@ export const DrawAreaSelection = Control.extend({
       : container.classList.add('inactive');
   },
 
-  mapMoveStart: function () {
-    this.map_moving = true;
+  _mapMoveStart: function () {
+    if (!this.options.active) {
+      return;
+    }
+    this.mapMoving = true;
   },
 
-  mapMoveEnd: function (event) {
-    requestAnimationFrame(() => {
-      this.map_moving = false;
-    });
+  _mapMoveEnd: function () {
+    if (!this.options.active) {
+      return;
+    }
     const map = this._map;
+    requestAnimationFrame(() => {
+      this.mapMoving = false;
+    });
     // Re-position end of selection HTML element
     const pane = map.getPane(PANE_NAME);
     const touchMarker = pane.querySelector('.end-selection-area');
@@ -185,6 +205,13 @@ export const DrawAreaSelection = Control.extend({
     this.activateButton.classList.remove('active');
     this._map.getContainer().classList.remove('drawing-area');
     this.setPhase('inactive', true);
+  },
+
+  _handleMouseMove: function (event) {
+    if (!this.options.active) {
+      return;
+    }
+    onMouseMove.bind(this)(event);
   },
 });
 

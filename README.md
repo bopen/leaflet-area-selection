@@ -49,13 +49,19 @@ The `DrawAreaSelection` can receive a configuration object with followings suppo
   Receives three arguments: the [Leaflet.Polygon](https://leafletjs.com/reference.html#polygon), the control instance and the event.
   Calling `preventDefault` on the event will abort the deactivation.
 
-# User guide
+## User guide
+
+### Defining the skeleton of the polygon
 
 When the plugin is activated by using the new control, the map enters in a **drawing phase**.<br>
-Clicks on the map will trigger a creation of a polygon.
+Clicks on the map will trigger the creation of a vertex for the polygon.
 
-User can continue adding points to the polygon (min length is 3) until the whole required area is covered.<br>
+User can continue adding vertexes to the polygon (min length is 3) until the whole required area is covered.<br>
 To complete the polygon drawing phase user must click on the first (green) point created.
+
+Alternatively: on the first click you can drag&drop and directly create a square shape (_note_: this method is not currently working on mobile!).
+
+### Fix and change polygon shape
 
 At this point we enter the **adjustment phase**, where user can:
 
@@ -63,7 +69,11 @@ At this point we enter the **adjustment phase**, where user can:
 - create new edges, by dragging the ghost markers in the middle of every path
 - deleting edges by double clicking on them
 
+## See it in action
+
 ![Example animation](./example.gif)
+
+![Example creating a rect](./example-rect.gif)
 
 See also the [live example](https://bopen.github.io/leaflet-area-selection).
 

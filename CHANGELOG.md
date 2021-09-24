@@ -1,9 +1,14 @@
 ## Changelog
 
+### 0.6.0
+
+- Added: square selection during drawing phase
+- Fixed: plugin was not working on mobile if [dragging](https://leafletjs.com/reference-1.7.1.html#map-dragging) was disabled
+
 ### 0.5.0
 
-- Added `onButtonActivate`
-- Added `onButtonDeactivate`
+- Added: `onButtonActivate`
+- Added: `onButtonDeactivate`
 
 ### 0.4.0
 

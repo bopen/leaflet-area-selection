@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Map, Icon, tileLayer, marker, geoJSON } from 'leaflet';
+import { Map, Icon, tileLayer, marker, geoJSON, Browser } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '@bopen/leaflet-area-selection/dist/index.css';
 import { DrawAreaSelection } from '@bopen/leaflet-area-selection';
@@ -21,6 +21,7 @@ const center = [41.901493, 12.5009157];
 const map = new Map('root', {
   // Fix for a bug in Leaflet 1.7.1. See https://github.com/Leaflet/Leaflet/issues/7255
   tap: false,
+  dragging: !Browser.mobile,
 }).setView(center, 13);
 
 tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
