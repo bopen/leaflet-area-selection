@@ -20,7 +20,7 @@ export function onAddPoint(event) {
   let { clientX, clientY } = event;
   // Touch device
   if (clientX === undefined && clientY === undefined) {
-    const touch = event.touches[0];
+    const touch = event.changedTouches[0];
     clientX = touch.clientX;
     clientY = touch.clientY;
   }

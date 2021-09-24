@@ -40,7 +40,7 @@ export function setPosition(el, point, offset = null) {
   }
 }
 
-export const CLICK_EVT = Browser.mobile ? 'touchstart' : 'click';
+export const CLICK_EVT = Browser.mobile ? 'touchend' : 'click';
 
 // This still needed due to bad Leaflet bug on Safari. See https://github.com/Leaflet/Leaflet/issues/7255
 export function isTrustedEvent(event) {
