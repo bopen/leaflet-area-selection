@@ -29,6 +29,7 @@ export function createPane(map, options) {
     map.fire('as:point-add', event);
   };
   pane.addEventListener(CLICK_EVT, handler);
+  return pane;
 }
 
 export function addEndClickArea(control, [x, y]) {

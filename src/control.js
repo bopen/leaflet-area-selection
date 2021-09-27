@@ -1,4 +1,4 @@
-import { DomUtil, Control, Util, Point } from 'leaflet';
+import { DomUtil, Control, Util, Point, Browser } from 'leaflet';
 import { createPane, removeEndClickArea, PANE_NAME } from './drawing-pane';
 import { cls, setPosition } from './utils';
 import {
@@ -64,6 +64,7 @@ export const DrawAreaSelection = Control.extend({
     this.activateButton = DomUtil.create('button', '', this._container);
     // this.activateButton.style.backgroundImage = `url('${buttonImage}')`;
     this.activateButton.setAttribute('aria-label', 'Draw shape');
+    this.activateButton.setAttribute('aria-describedby', 'draw-panel-help');
     this.activateButton.addEventListener('click', onActivate.bind(this));
     this.activateButton.addEventListener('dblclick', (event) => {
       event.stopPropagation();
@@ -72,7 +73,8 @@ export const DrawAreaSelection = Control.extend({
       ? this.activateButton.classList.add('active')
       : this.activateButton.classList.remove('active');
     this._map = map;
-    createPane(map, this.options);
+    const pane = createPane(map, this.options);
+    this.addUserHelpPanel(pane);
     map.getContainer().addEventListener('mousemove', this._handleMouseMove);
     map.on('movestart', this._mapMoveStart);
     map.on('moveend', this._mapMoveEnd);
@@ -109,6 +111,18 @@ export const DrawAreaSelection = Control.extend({
 
   onPolygonDblClick: function (ev) {
     this.options.onPolygonDblClick(this.polygon, this, ev);
+  },
+
+  addUserHelpPanel(pane) {
+    const panel = DomUtil.create('div', cls('draw-pane-help'));
+    panel.setAttribute('id', 'draw-panel-help');
+    panel.setAttribute('role', 'tooltip');
+    const help = `Define a polygon by clicking of the map to define vertexes${
+      Browser.mobile ? `.` : ` or click-and-drag to obtain a rectangular shape.`
+    }`;
+    panel.textContent = help;
+
+    pane.appendChild(panel);
   },
 
   setPhase(phase, forceClear = false) {

@@ -60,8 +60,36 @@
   background-color: rgba(255, 255, 255, 0.25);
 }
 
-.leafletMapOverlayPane:global.inactive :global .leaflet-area-draw-selection-pane {
+.leafletMapOverlayPane:global.inactive .leaflet-area-draw-selection-pane {
   background-color: transparent;
+}
+
+.leafletMapOverlayPane .drawPaneHelp {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  overflow-x: clip;
+  overflow-y: hidden;
+  text-align: center;
+  font-size: 17px;
+  padding: 0.5em 0.3em;
+  background-color: rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+}
+
+.leafletMapOverlayPane:global.inactive :global .draw-pane-help {
+  display: none;
+}
+
+@media screen and (max-width: 667px) {
+  .leafletMapOverlayPane .drawPaneHelp {
+    font-size: 13px;
+  }
+}
+@media screen and (max-width: 375px) {
+  .leafletMapOverlayPane .drawPaneHelp {
+    font-size: 11px;
+  }
 }
 
 .endSelectionArea {
@@ -126,6 +154,10 @@
   stroke-dasharray: 10;
   animation: closeline-dash 10s linear;
   animation-iteration-count: infinite;
+}
+
+:global .map-container.drawing-area :global .leaflet-control-attribution {
+  display: none;
 }
 
 :global @keyframes closeline-dash {

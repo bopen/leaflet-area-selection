@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.6.1
+
+- Added message to help users on how to draw something
+
 ### 0.6.0
 
 - Added: square selection during drawing phase
