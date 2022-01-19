@@ -33,6 +33,12 @@ const areaSelection = new DrawAreaSelection();
 map.addControl(areaSelection);
 ```
 
+### Old school usage?
+
+Although we think it's time for Leaflet to move away from global `L` object and open to modern JavaScript and tree-shaking, you can still use this plugin in the old way.
+
+This gist contains a modified version of the Leaflet "Hello World" example: https://gist.github.com/keul/74e442b96a41c4f50e304c22259a63c3
+
 ## Configuration
 
 The `DrawAreaSelection` can receive a configuration object with followings supported options:
