@@ -3,7 +3,7 @@
 ### 0.6.2
 
 - bugfix: drag event were called while userwass just performing first click
-
+- bugfix: ghost markers were displayed in a fuzzy position after a zoom change
 
 ### 0.6.1
 

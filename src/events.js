@@ -336,11 +336,7 @@ export function onGhostMarkerDrag(index) {
         map.removeLayer(this.ghostPolygon);
       }
       this.ghostPolygon = new Polygon(
-        [
-          map.containerPointToLatLng(firstPoint.point),
-          latlng,
-          map.containerPointToLatLng(lastPoint.point),
-        ],
+        [firstPoint.marker.getLatLng(), latlng, lastPoint.marker.getLatLng()],
         {
           color: 'rgb(45, 123, 200)',
           weight: 2,
