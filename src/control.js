@@ -165,20 +165,6 @@ export const DrawAreaSelection = Control.extend({
       const point = map.latLngToContainerPoint(firstMarker.getLatLng());
       setPosition(touchMarker, point, new Point(-bbox.width / 2, -bbox.height / 2));
     }
-    this.translatePolygon();
-  },
-
-  translatePolygon: function () {
-    if (this.markers.length === 0) {
-      return;
-    }
-    const map = this._map;
-    this.markers.forEach((data) => {
-      data.point = map.latLngToContainerPoint(data.marker.getLatLng());
-    });
-    this.ghostMarkers.forEach((data) => {
-      data.point = map.latLngToContainerPoint(data.marker.getLatLng());
-    });
   },
 
   hoverClosePoint: function (event) {

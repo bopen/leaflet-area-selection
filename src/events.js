@@ -60,7 +60,6 @@ export function onAddPoint(event) {
     });
   });
   const newEdge = {
-    point,
     marker,
     index,
   };
@@ -99,7 +98,6 @@ export function onAddMarker({ index = null, ...rest }) {
   const map = this.getMap();
   const edge = {
     marker: rest.marker,
-    point: rest.point,
   };
   const { markers } = this;
   if (index === null) {
@@ -239,7 +237,6 @@ export function onUpdateGhostPoints() {
         draggable: true,
       });
       const newGhostMarker = {
-        point,
         marker,
       };
       marker.on(CLICK_EVT, doNothingHandler);
@@ -312,12 +309,7 @@ export function onActivate(event) {
 export function onMarkerDrag(index) {
   const map = this.getMap();
   return (event) => {
-    const { latlng } = event;
     requestAnimationFrame(() => {
-      const newPoint = map.latLngToContainerPoint(latlng);
-      const { point } = this.markers[index];
-      point.x = newPoint.x;
-      point.y = newPoint.y;
       map.fire('as:update-polygon');
       map.fire('as:update-ghost-points');
     });
