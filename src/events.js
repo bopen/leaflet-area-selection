@@ -24,8 +24,8 @@ export function onAddPoint(event) {
     clientX = touch.clientX;
     clientY = touch.clientY;
   }
-  // We were drawing a rect, so we don't perform the canonical action ans we stop here
-  if (this.rectDrawing) {
+  // We were drawing a rect, so we don't perform the canonical action and we stop here
+  if (this.rectDrawing && this.rectDrawEnd !== null) {
     map.fire('as:dragging-rect-end');
     return;
   }

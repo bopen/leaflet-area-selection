@@ -1,5 +1,10 @@
 ## Changelog
 
+### 0.6.2
+
+- bugfix: drag event were called while userwass just performing first click
+
+
 ### 0.6.1
 
 - Added message to help users on how to draw something
