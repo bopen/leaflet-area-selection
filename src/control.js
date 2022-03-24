@@ -1,5 +1,5 @@
 import { DomUtil, Control, Util, Point, Browser } from 'leaflet';
-import { createPane, removeEndClickArea, PANE_NAME } from './drawing-pane';
+import { createPane, removeEndClickArea, PANE_NAME, addEndClickArea } from './drawing-pane';
 import { cls, setPosition } from './utils';
 import {
   onActivate,
@@ -32,7 +32,7 @@ export const DrawAreaSelection = Control.extend({
     onButtonDeactivate: (polygon, control, event) => {},
   },
 
-  initialize: function (options = {}) {
+  initialize: function (options = {}, showButton = true) {
     Util.setOptions(this, options);
     this._map = null;
     // lifecycle phases: one of inactive, draw, adjust
@@ -57,21 +57,24 @@ export const DrawAreaSelection = Control.extend({
     this._mapMoveStart = this._mapMoveStart.bind(this);
     this._mapMoveEnd = this._mapMoveEnd.bind(this);
     this._handleMouseMove = this._handleMouseMove.bind(this);
+    this._showButton = showButton;
   },
 
   onAdd: function (map) {
     this._container = DomUtil.create('div', cls('leaflet-area-selector-control'));
-    this.activateButton = DomUtil.create('button', '', this._container);
-    // this.activateButton.style.backgroundImage = `url('${buttonImage}')`;
-    this.activateButton.setAttribute('aria-label', 'Draw shape');
-    this.activateButton.setAttribute('aria-describedby', 'draw-panel-help');
-    this.activateButton.addEventListener('click', onActivate.bind(this));
-    this.activateButton.addEventListener('dblclick', (event) => {
-      event.stopPropagation();
-    });
-    this.options.active
-      ? this.activateButton.classList.add('active')
-      : this.activateButton.classList.remove('active');
+    if (this._showButton) {
+      this.activateButton = DomUtil.create('button', '', this._container);
+      // this.activateButton.style.backgroundImage = `url('${buttonImage}')`;
+      this.activateButton.setAttribute('aria-label', 'Draw shape');
+      this.activateButton.setAttribute('aria-describedby', 'draw-panel-help');
+      this.activateButton.addEventListener('click', onActivate.bind(this));
+      this.activateButton.addEventListener('dblclick', (event) => {
+        event.stopPropagation();
+      });
+      this.options.active
+        ? this.activateButton.classList.add('active')
+        : this.activateButton.classList.remove('active');
+    }
     this._map = map;
     const pane = createPane(map, this.options);
     this.addUserHelpPanel(pane);
@@ -202,9 +205,19 @@ export const DrawAreaSelection = Control.extend({
 
   deactivate: function () {
     removeEndClickArea(this);
-    this.activateButton.classList.remove('active');
+    if (this._showButton) {
+      this.activateButton.classList.remove('active');
+    }
     this._map.getContainer().classList.remove('drawing-area');
     this.setPhase('inactive', true);
+  },
+
+  activate: function () {
+    if (this._showButton) {
+      this.activateButton.classList.add('active');
+    }
+    this._map.getContainer().classList.add('drawing-area');
+    this.setPhase('draw', false);
   },
 
   _handleMouseMove: function (event) {
