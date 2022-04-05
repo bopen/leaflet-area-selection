@@ -1,5 +1,5 @@
 import { DomUtil, Control, Util, Point, Browser } from 'leaflet';
-import { createPane, removeEndClickArea, PANE_NAME } from './drawing-pane';
+import { createPane, removeEndClickArea, PANE_NAME, addEndClickArea } from './drawing-pane';
 import { cls, setPosition } from './utils';
 import {
   onActivate,
@@ -205,6 +205,12 @@ export const DrawAreaSelection = Control.extend({
     this.activateButton.classList.remove('active');
     this._map.getContainer().classList.remove('drawing-area');
     this.setPhase('inactive', true);
+  },
+
+  activate: function () {
+    this.activateButton.classList.add('active');
+    this._map.getContainer().classList.add('drawing-area');
+    this.setPhase('draw', false);
   },
 
   _handleMouseMove: function (event) {
