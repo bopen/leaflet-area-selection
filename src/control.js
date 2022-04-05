@@ -1,5 +1,5 @@
 import { DomUtil, Control, Util, Point, Browser } from 'leaflet';
-import { createPane, removeEndClickArea, PANE_NAME, addEndClickArea } from './drawing-pane';
+import { createPane, removeEndClickArea, PANE_NAME } from './drawing-pane';
 import { cls, setPosition } from './utils';
 import {
   onActivate,
@@ -208,9 +208,11 @@ export const DrawAreaSelection = Control.extend({
   },
 
   activate: function () {
+    // When activating the plugin we'll disable dragging temporarely (in case we are drawing a rect)
+    this._map.dragging.disable();
     this.activateButton.classList.add('active');
     this._map.getContainer().classList.add('drawing-area');
-    this.setPhase('draw', false);
+    this.setPhase('draw', true);
   },
 
   _handleMouseMove: function (event) {

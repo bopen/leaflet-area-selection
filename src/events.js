@@ -297,11 +297,7 @@ export function onActivate(event) {
     // Calling user's specific event handler
     this.options.onButtonActivate(this, event);
     if (!event.defaultPrevented) {
-      // When activating the plugin we'll disable dragging temporarely (in case we are drawing a rect)
-      map.dragging.disable();
-      this.activateButton.classList.add('active');
-      map.getContainer().classList.add('drawing-area');
-      this.setPhase('draw', true);
+      this.activate();
     }
   }
 }
