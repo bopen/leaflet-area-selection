@@ -24,9 +24,9 @@ pre {
 
 .show-selection {
   box-sizing: border-box;
-  margin: 5px 10px;
+  margin: 0px 10px;
   padding: 5px 10px;
-  max-height: calc(30vh - 20px);
+  height: calc(30vh - 20px);
   overflow-y: auto;
   box-shadow: 3px 3px 6px -1px #303030;
   border-radius: 5px;
@@ -34,15 +34,22 @@ pre {
 
 .map-container {
   box-sizing: border-box;
-  margin: 15px 20px;
+  margin: 0px 10px;
   height: calc(70vh - 30px);
   box-shadow: 3px 3px 6px -1px #303030;
   border-radius: 5px;
 }
 
+#control {
+  width: max-content;
+  margin: auto;
+}
+
 main {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 1fr min-content 1fr;
+  gap: 0.5rem;
+  height: 100vh;
 }
 
 @media screen and (max-width: 767px) and (orientation: landscape) {
@@ -50,18 +57,19 @@ main {
     opacity: 0.4;
   }
   main {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
+    display: grid;
+    grid-template-rows: none;
+    grid-template-columns: 1fr min-content 1fr;
+    gap: 0.3rem;
+    height: 100vh;
   }
   .map-container {
-    height: calc(100vh - 30px);
-    width: 70%;
+    height: 100vh;
   }
   .show-selection {
-    font-size: 10px;
-    height: calc(100vh - 20px);
-    width: 30%;
-    max-height: none;
+    height: 100vh;
+  }
+  #control {
+    width: min-content;
   }
 }

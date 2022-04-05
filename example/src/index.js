@@ -73,3 +73,12 @@ ${polygon ? JSON.stringify(polygon.toGeoJSON(3), undefined, 2) : 'null'}`;
 });
 
 map.addControl(areaSelection);
+
+const command = document.querySelector('#control');
+command.addEventListener('click', function () {
+  if (areaSelection.phase !== 'inactive') {
+    areaSelection.deactivate();
+  } else {
+    areaSelection.activate();
+  }
+});
