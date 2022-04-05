@@ -1,9 +1,13 @@
 ## Changelog
 
+### 0.7.0
+
+- Added: `activate` method, to make plugin activable externally
+
 ### 0.6.2
 
-- bugfix: drag event were called while userwass just performing first click
-- bugfix: ghost markers were displayed in a fuzzy position after a zoom change
+- Bugfix: drag event were called while user was just performing first click
+- Bugfix: ghost markers were displayed in a fuzzy position after a zoom change
 
 ### 0.6.1
 
