@@ -35,7 +35,7 @@ export function createPane(map, options) {
 export function addEndClickArea(control, [x, y]) {
   const map = control.getMap();
   const pane = map.getPane(PANE_NAME);
-  const marker = DomUtil.create('div', cls('end-selection-area'), pane);
+  const marker = DomUtil.create('div', cls('end-selection-area', 'inactive'), pane);
   const bbox = marker.getBoundingClientRect();
   marker.setAttribute('role', 'button');
   const handler = (event) => {

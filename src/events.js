@@ -39,6 +39,13 @@ export function onAddPoint(event) {
     // this is the first point: let's add a sensible click area on the pane too
     addEndClickArea(this, [x, y]);
   }
+  if (this.markers.length >= 2) {
+    // re-enable click event on first marker
+    const endPoints = document.getElementsByClassName('end-selection-area');
+    if (endPoints.length > 0) {
+      endPoints[0].classList.remove('inactive');
+    }
+  }
   const point = new Point(x, y);
   const icon = new DivIcon({
     className: cls('area-select-marker'),
