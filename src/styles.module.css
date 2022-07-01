@@ -44,6 +44,10 @@
   pointer-events: none;
 }
 
+.leafletMapOverlayPane :global .inactive {
+  pointer-events: none;
+}
+
 .leafletMapOverlayPane {
   position: static;
   cursor: crosshair;
