@@ -41,7 +41,10 @@ export function onAddPoint(event) {
   }
   if (this.markers.length >= 2) {
     // re-enable click event on first marker
-    document.getElementsByClassName('end-selection-area')[0].classList.remove('inactive');
+    const endPoints = document.getElementsByClassName('end-selection-area');
+    if (endPoints.length > 0) {
+      endPoints[0].classList.remove('inactive');
+    }
   }
   const point = new Point(x, y);
   const icon = new DivIcon({
