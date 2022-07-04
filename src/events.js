@@ -252,8 +252,6 @@ export function onUpdateGhostPoints() {
 
 export function onPolygonCreationEnd() {
   const map = this.getMap();
-  // We'll forcly enable the drag on the map (which will be just of the draw pane)
-  map.dragging.enable();
   map.removeLayer(this.closeLine);
   this.closeLine = null;
   // Remove style for the final marker icon

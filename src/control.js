@@ -22,7 +22,7 @@ export const DrawAreaSelection = Control.extend({
     // partially fade the map when draw phase is activated
     fadeOnActivation: true,
     /* ******* callbacks ******* */
-    // callback called when draw phase is complete and at every polygon adjustement
+    // callback called when draw phase is complete and at every polygon adjustment
     onPolygonReady: (polygon, control) => {},
     // callback called when draw phase is complete and double-click is performed on the final polygon
     onPolygonDblClick: (polygon, control, event) => {},
@@ -201,6 +201,8 @@ export const DrawAreaSelection = Control.extend({
   },
 
   deactivate: function () {
+    // We'll forcibly enable the drag on the map (which will be just of the draw pane)
+    this._map.dragging.enable();
     removeEndClickArea(this);
     this.activateButton.classList.remove('active');
     this._map.getContainer().classList.remove('drawing-area');
@@ -208,7 +210,7 @@ export const DrawAreaSelection = Control.extend({
   },
 
   activate: function () {
-    // When activating the plugin we'll disable dragging temporarely (in case we are drawing a rect)
+    // When activating the plugin we'll disable dragging temporarily (in case we are drawing a rect)
     this._map.dragging.disable();
     this.activateButton.classList.add('active');
     this._map.getContainer().classList.add('drawing-area');
