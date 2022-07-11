@@ -1,5 +1,10 @@
 ## Changelog
 
+### 0.7.1
+
+- Fixed: map drag is restored when a polygon creation has been cancelled.
+  See [#11](https://github.com/bopen/leaflet-area-selection/issues/11)
+
 ### 0.7.0
 
 - Added: `activate` method, to make plugin activable externally
