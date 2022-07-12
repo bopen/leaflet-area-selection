@@ -4,6 +4,8 @@
 
 - Fixed: map drag is restored when a polygon creation has been cancelled.
   See [#11](https://github.com/bopen/leaflet-area-selection/issues/11)
+- Fixed: clicking on the initial marker will sometimes break the creation loop.
+  See [#12](https://github.com/bopen/leaflet-area-selection/issues/12)
 
 ### 0.7.0
 
