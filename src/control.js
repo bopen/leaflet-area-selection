@@ -65,6 +65,7 @@ export const DrawAreaSelection = Control.extend({
     // this.activateButton.style.backgroundImage = `url('${buttonImage}')`;
     this.activateButton.setAttribute('aria-label', 'Draw shape');
     this.activateButton.setAttribute('aria-describedby', 'draw-panel-help');
+    this.activateButton.setAttribute('type', 'button');
     this.activateButton.addEventListener('click', onActivate.bind(this));
     this.activateButton.addEventListener('dblclick', (event) => {
       event.stopPropagation();
