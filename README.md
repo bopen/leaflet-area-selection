@@ -55,6 +55,44 @@ The `DrawAreaSelection` can receive a configuration object with followings suppo
   Receives three arguments: the [Leaflet.Polygon](https://leafletjs.com/reference.html#polygon), the control instance and the event.
   Calling `preventDefault` on the event will abort the deactivation.
 
+A polygon can be drawn on the map at loading time (it can later be changed by the user) by firing the "point-add" multiple times on the map as in the example script below:
+
+```javascript
+const brect = map.getContainer().getBoundingClientRect();
+
+let point_1 = map.latLngToContainerPoint(45,5]);
+map.fire("as:point-add",
+  new MouseEvent("click", {
+    clientX: point_1.x + brect.left,
+    clientY: point_1.y + +brect.top
+  })
+);
+
+let point_2 = map.latLngToContainerPoint(46,6]);
+map.fire("as:point-add",
+  new MouseEvent("click", {
+    clientX: point_2.x + brect.left,
+    clientY: point_2.y + +brect.top
+  })
+);
+
+let point_3 = map.latLngToContainerPoint(47,7]);
+map.fire("as:point-add",
+  new MouseEvent("click", {
+    clientX: point_3.x + brect.left,
+    clientY: point_3.y + +brect.top
+  })
+);
+
+#Now closing by coming back to point 1
+map.fire("as:point-add",
+  new MouseEvent("click", {
+    clientX: point_1.x + brect.left,
+    clientY: point_1.y + +brect.top
+  })
+);
+```
+
 ## User guide
 
 ### Defining the skeleton of the polygon
