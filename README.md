@@ -84,7 +84,7 @@ map.fire("as:point-add",
   })
 );
 
-#Now closing by coming back to point 1
+# Now closing by coming back to point 1
 map.fire("as:point-add",
   new MouseEvent("click", {
     clientX: point_1.x + brect.left,
